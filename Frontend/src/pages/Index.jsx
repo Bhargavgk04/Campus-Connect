@@ -50,7 +50,7 @@ export default function Index() {
           <div className="container max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                How CampusQuery Works
+                How CampusConnect Works
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Connect with your college community and get your questions answered.
@@ -120,7 +120,7 @@ export default function Index() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                CampusQuery
+                CampusConnect
               </span>
             </div>
             
@@ -140,7 +140,7 @@ export default function Index() {
             </div>
             
             <div className="mt-4 md:mt-0 text-sm text-muted-foreground">
-              © 2024 CampusQuery. All rights reserved.
+              © 2024 CampusConnect. All rights reserved.
             </div>
           </div>
         </div>
