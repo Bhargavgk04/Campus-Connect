@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import CollegesList from "./pages/CollegesList";
 import CollegePage from "./pages/CollegePage";
 import NotFound from "./pages/NotFound";
+import Activity from "./pages/Activity";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/colleges" element={<CollegesList />} />
           <Route path="/college/:id" element={<CollegePage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/activity" element={<Activity />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
