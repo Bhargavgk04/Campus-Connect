@@ -2,34 +2,58 @@
 export const categories = [
   {
     id: "cat-1",
-    name: "Academics",
-    slug: "academics",
-    description: "Questions about courses, majors, and academic performance"
+    name: "Admissions",
+    slug: "admissions",
+    description: "Questions about college admissions process and requirements"
   },
   {
     id: "cat-2",
-    name: "Campus Life",
-    slug: "campus-life",
-    description: "Questions about dorms, events, and campus activities"
+    name: "Courses & Academics",
+    slug: "courses-academics",
+    description: "Questions about courses, majors, and academic programs"
   },
   {
     id: "cat-3",
-    name: "Career",
-    slug: "career",
-    description: "Questions about internships, job search, and career planning"
+    name: "Placement & Internship",
+    slug: "placement-internship",
+    description: "Questions about job placements and internship opportunities"
   },
   {
     id: "cat-4",
-    name: "Financial Aid",
-    slug: "financial-aid",
-    description: "Questions about scholarships, loans, and financial planning"
+    name: "Exams & Results",
+    slug: "exams-results",
+    description: "Questions about examinations, grading, and academic results"
   },
   {
     id: "cat-5",
-    name: "Tech",
-    slug: "tech",
-    description: "Questions about technology, software, and tech courses"
+    name: "Scholarship",
+    slug: "scholarship",
+    description: "Questions about scholarships and financial aid"
   },
+  {
+    id: "cat-6",
+    name: "Career Guidance",
+    slug: "career-guidance",
+    description: "Questions about career planning and professional development"
+  },
+  {
+    id: "cat-7",
+    name: "Fresher Queries",
+    slug: "fresher-queries",
+    description: "Questions specifically for new students and freshers"
+  },
+  {
+    id: "cat-8",
+    name: "Alumni Network",
+    slug: "alumni-network",
+    description: "Questions and discussions with college alumni"
+  },
+  {
+    id: "cat-9",
+    name: "Academic Projects",
+    slug: "academic-projects",
+    description: "Questions about academic and research projects"
+  }
 ];
 
 // Mock Users
