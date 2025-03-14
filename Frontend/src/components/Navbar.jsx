@@ -127,23 +127,32 @@ export default function Navbar() {
               </button>
               
               {showProfileMenu && (
-                <div className="absolute right-0 mt-2 w-48 py-2 bg-card rounded-lg shadow-lg border border-border animate-fade-in">
-                  <div className="px-4 py-2 border-b border-border">
-                    <p className="font-medium truncate">{mockAuthUser.name}</p>
+                <div className="profile-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card border border-border">
+                  <div className="py-1">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      My Profile
+                    </Link>
+                    <Link
+                      to="/activity"
+                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                      onClick={() => setShowProfileMenu(false)}
+                    >
+                      My Activity
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        setIsAuthenticated(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      Sign Out
+                    </button>
                   </div>
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-foreground/80 hover:text-primary hover:bg-muted/50 transition-colors"
-                    onClick={() => setShowProfileMenu(false)}
-                  >
-                    View Profile
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted/50 transition-colors"
-                  >
-                    Log Out
-                  </button>
                 </div>
               )}
             </div>
