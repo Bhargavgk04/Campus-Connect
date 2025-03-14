@@ -1,11 +1,12 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
-import QuestionCard from "../components/QuestionCard";
-import { getQuestionsSortedByUpvotes } from "../data/mockData";
+import CollegeCard from "../components/CollegeCard";
+import { getCollegesSortedByActivity } from "../data/mockData";
 
 export default function Index() {
-  const topQuestions = getQuestionsSortedByUpvotes().slice(0, 3);
+  const topColleges = getCollegesSortedByActivity().slice(0, 3);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -18,26 +19,26 @@ export default function Index() {
       <main>
         <Hero />
         
-        {/* Top Questions Section */}
+        {/* Top Colleges Section */}
         <section className="py-16 px-4 md:px-6">
           <div className="container max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-2xl md:text-3xl font-bold">
-                Top Questions
+                Top Active Colleges
               </h2>
-              <a 
-                href="/questions" 
+              <Link 
+                to="/colleges" 
                 className="text-primary hover:text-primary/80 text-sm font-medium"
               >
                 View All →
-              </a>
+              </Link>
             </div>
             
-            <div className="grid grid-cols-1 gap-6">
-              {topQuestions.map((question) => (
-                <QuestionCard 
-                  key={question.id} 
-                  question={question}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {topColleges.map((college) => (
+                <CollegeCard 
+                  key={college.id} 
+                  college={college}
                 />
               ))}
             </div>
@@ -52,7 +53,7 @@ export default function Index() {
                 How CampusQuery Works
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                Get your questions answered by fellow students and contribute to the community knowledge.
+                Connect with your college community and get your questions answered.
               </p>
             </div>
             
@@ -61,9 +62,9 @@ export default function Index() {
                 <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-bold mb-4">
                   1
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Ask a Question</h3>
+                <h3 className="text-xl font-semibold mb-2">Find Your College</h3>
                 <p className="text-muted-foreground">
-                  Share your question with detailed information to help others understand your problem.
+                  Browse and join your college community to connect with peers.
                 </p>
               </div>
               
@@ -71,9 +72,9 @@ export default function Index() {
                 <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-bold mb-4">
                   2
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Get Answers</h3>
+                <h3 className="text-xl font-semibold mb-2">Ask Questions</h3>
                 <p className="text-muted-foreground">
-                  Receive answers from students who have faced similar issues or have the expertise.
+                  Share your questions with your college community.
                 </p>
               </div>
               
@@ -81,9 +82,9 @@ export default function Index() {
                 <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-bold mb-4">
                   3
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Upvote the Best</h3>
+                <h3 className="text-xl font-semibold mb-2">Get Help</h3>
                 <p className="text-muted-foreground">
-                  Vote for the most helpful answers to help others find quality content.
+                  Receive answers from students and faculty in your college.
                 </p>
               </div>
             </div>
@@ -96,17 +97,17 @@ export default function Index() {
             <div className="glass rounded-2xl p-8 md:p-12 bg-gradient-to-br from-primary/5 to-accent/5">
               <div className="text-center">
                 <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                  Join the CampusQuery Community
+                  Join Your College Community
                 </h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-                  Create an account today to start asking questions, providing answers, and connecting with fellow students.
+                  Create an account today to start connecting with your college peers and get the help you need.
                 </p>
-                <a 
-                  href="/signup" 
+                <Link 
+                  to="/signup" 
                   className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-11 px-8"
                 >
                   Sign Up Now
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -139,7 +140,7 @@ export default function Index() {
             </div>
             
             <div className="mt-4 md:mt-0 text-sm text-muted-foreground">
-              © 2023 CampusQuery. All rights reserved.
+              © 2024 CampusQuery. All rights reserved.
             </div>
           </div>
         </div>
