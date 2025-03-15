@@ -1,22 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Menu, X, User } from "lucide-react";
+import { Search, Menu, X, User, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
-
-// Mock authenticated user - in a real app, this would come from your auth context/state management
-const mockAuthUser = {
-  id: 1,
-  name: "John Doe",
-  avatar: "",
-};
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // For demo purposes
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
   // Detect when page is scrolled
@@ -48,12 +40,6 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     console.log("Searching for:", searchQuery);
-    // Implement search functionality
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    navigate('/login');
   };
 
   return (
@@ -107,91 +93,71 @@ export default function Navbar() {
         {/* User Actions */}
         <div className="hidden md:flex items-center space-x-4">
           <ThemeToggle />
-          {isAuthenticated ? (
-            <div className="relative profile-menu">
-              <button
-                onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 hover:border-primary transition-colors"
-              >
-                {mockAuthUser.avatar ? (
-                  <img
-                    src={mockAuthUser.avatar}
-                    alt={mockAuthUser.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-muted">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                )}
-              </button>
-              
-              {showProfileMenu && (
-                <div className="profile-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card border border-border">
-                  <div className="py-1">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      My Profile
-                    </Link>
-                    <Link
-                      to="/activity"
-                      className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      My Activity
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        setIsAuthenticated(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
+          {/* Admin Button */}
+          <Link
+            to="/admin"
+            className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 transition-colors rounded-full"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Admin Panel</span>
+          </Link>
+          
+          {/* Profile Menu */}
+          <div className="relative profile-menu">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 hover:border-primary transition-colors"
+            >
+              <div className="w-full h-full flex items-center justify-center bg-muted">
+                <User className="w-5 h-5 text-muted-foreground" />
+              </div>
+            </button>
+            
+            {showProfileMenu && (
+              <div className="profile-menu absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-card border border-border">
+                <div className="py-1">
+                  <Link
+                    to="/admin"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Admin Dashboard
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    to="/activity"
+                    className="block px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    onClick={() => setShowProfileMenu(false)}
+                  >
+                    My Activity
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    Sign Out
+                  </Link>
                 </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <Link 
-                to="/login" 
-                className="px-4 py-2 text-primary hover:text-primary/80 transition-colors"
-              >
-                Log In
-              </Link>
-              <Link 
-                to="/signup" 
-                className="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-colors"
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="flex items-center space-x-3 md:hidden">
           <ThemeToggle />
-          {isAuthenticated && (
-            <Link to="/profile" className="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20">
-              {mockAuthUser.avatar ? (
-                <img
-                  src={mockAuthUser.avatar}
-                  alt={mockAuthUser.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-muted">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                </div>
-              )}
-            </Link>
-          )}
+          <Link to="/profile" className="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20">
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <User className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </Link>
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 rounded-md text-foreground"
@@ -229,29 +195,22 @@ export default function Navbar() {
             <Link to="/about" className="block py-2 text-foreground/80 hover:text-primary">
               About
             </Link>
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="w-full text-left py-2 text-destructive hover:text-destructive/80"
-              >
-                Log Out
-              </button>
-            ) : (
-              <div className="pt-2 flex flex-col space-y-2">
-                <Link 
-                  to="/login" 
-                  className="px-4 py-2 text-center text-primary hover:text-primary/80 border border-primary/20 rounded-md"
-                >
-                  Log In
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="px-4 py-2 text-center bg-primary hover:bg-primary/90 text-primary-foreground rounded-md"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            <Link to="/admin" className="flex items-center gap-2 py-2 text-primary hover:text-primary/80">
+              <ShieldCheck className="w-4 h-4" />
+              Admin Dashboard
+            </Link>
+            <Link to="/profile" className="block py-2 text-foreground/80 hover:text-primary">
+              My Profile
+            </Link>
+            <Link to="/activity" className="block py-2 text-foreground/80 hover:text-primary">
+              My Activity
+            </Link>
+            <Link
+              to="/login"
+              className="block py-2 text-destructive hover:text-destructive/80"
+            >
+              Sign Out
+            </Link>
           </div>
         </div>
       )}
