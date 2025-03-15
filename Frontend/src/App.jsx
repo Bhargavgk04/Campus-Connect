@@ -19,6 +19,7 @@ import AdminUsers from "./pages/admin/Users";
 import AdminReports from "./pages/admin/Reports";
 import AdminLayout from "./components/layouts/AdminLayout";
 import About from "./pages/About";
+import MyHubs from "./pages/MyHubs";
 import { useLocation } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const AppContent = () => {
         <Route path="/question/:id" element={<QuestionDetail />} />
         <Route path="/colleges" element={<CollegesList />} />
         <Route path="/college/:id" element={<CollegePage />} />
+        <Route path="/my-hubs" element={<MyHubs />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/activity" element={<Activity />} />
         <Route path="/about" element={<About />} />
