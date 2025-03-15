@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import QuestionCard from "../components/QuestionCard";
 import CategorySelector from "../components/CategorySelector";
@@ -7,13 +8,23 @@ import { getQuestionsSortedByUpvotes, getQuestionsByCategory } from "../data/moc
 import { Filter, SortAsc, SortDesc } from "lucide-react";
 
 export default function Questions() {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || null);
   const [questions, setQuestions] = useState([]);
   const [sortOrder, setSortOrder] = useState('popular');
   
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Update URL when category changes
+  useEffect(() => {
+    if (selectedCategory) {
+      setSearchParams({ category: selectedCategory });
+    } else {
+      setSearchParams({});
+    }
+  }, [selectedCategory, setSearchParams]);
 
   useEffect(() => {
     let filteredQuestions;
@@ -100,9 +111,9 @@ export default function Questions() {
                 )}
               </div>
             </div>
-            
+
             {/* Sidebar */}
-            <div>
+            <div className="lg:col-span-1">
               <QuestionForm />
             </div>
           </div>
@@ -110,4 +121,4 @@ export default function Questions() {
       </main>
     </div>
   );
-} 
+}
