@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
-    <div className="relative overflow-hidden pt-32 pb-16 md:pt-40 md:pb-24">
+    <div className="relative overflow-hidden pt-[72px] pb-16 md:pt-[80px] md:pb-24">
       {/* Background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
@@ -19,16 +19,16 @@ export default function Hero() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent tracking-tight animate-slide-in">
+          <h1 className="font-bold text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent tracking-tight">
             Campus<span className="text-primary">Connect</span>
           </h1>
-          <p className="max-w-[42rem] text-muted-foreground sm:text-xl animate-slide-up">
+          <p className="max-w-[42rem] text-muted-foreground sm:text-xl">
             Ask questions. Share knowledge. Connect with students from around the campus.
             Get the answers you need to succeed in your college journey.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 min-[400px]:gap-4 mt-4 animate-slide-up" style={{ animationDelay: "100ms" }}>
+          <div className="flex flex-col sm:flex-row gap-3 min-[400px]:gap-4 mt-4">
             <Link
               to="/colleges"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-11 px-8"
@@ -36,7 +36,7 @@ export default function Hero() {
               Browse Colleges
             </Link>
             <Link
-              to="/signup"
+              to="/auth"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-11 px-8"
             >
               Join Now
@@ -47,7 +47,7 @@ export default function Hero() {
 
         {/* Feature Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
-          <div className="glass p-6 rounded-xl animate-zoom-in" style={{ animationDelay: "200ms" }}>
+          <div className="glass p-6 rounded-xl">
             <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 mb-4">
               <BookOpen className="h-6 w-6 text-primary" />
             </div>
@@ -57,7 +57,7 @@ export default function Hero() {
             </p>
           </div>
           
-          <div className="glass p-6 rounded-xl animate-zoom-in" style={{ animationDelay: "300ms" }}>
+          <div className="glass p-6 rounded-xl">
             <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 mb-4">
               <Users className="h-6 w-6 text-primary" />
             </div>
@@ -67,7 +67,7 @@ export default function Hero() {
             </p>
           </div>
           
-          <div className="glass p-6 rounded-xl animate-zoom-in" style={{ animationDelay: "400ms" }}>
+          <div className="glass p-6 rounded-xl">
             <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary/10 mb-4">
               <Zap className="h-6 w-6 text-primary" />
             </div>
