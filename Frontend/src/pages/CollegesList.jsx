@@ -1,21 +1,35 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { colleges as initialColleges } from "../data/mockData";
 import { Users, MessageSquare, School, Check } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function CollegesList() {
-  const [colleges, setColleges] = useState(initialColleges);
+  const [colleges, setColleges] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    fetchColleges();
   }, []);
+
+  const fetchColleges = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/colleges");
+      setColleges(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch colleges");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleJoin = (collegeId, event) => {
     event.preventDefault(); // Prevent navigation
     setColleges(prevColleges =>
       prevColleges.map(college =>
-        college.id === collegeId
+        college._id === collegeId
           ? { ...college, isJoined: !college.isJoined }
           : college
       )
@@ -25,9 +39,17 @@ export default function CollegesList() {
   const handleCardClick = (college, event) => {
     // Only navigate if the click wasn't on the join button
     if (!event.defaultPrevented && college.isJoined) {
-      navigate(`/college/${college.id}`);
+      navigate(`/college/${college._id}`);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +60,7 @@ export default function CollegesList() {
         <div className="grid gap-6">
           {colleges.map((college) => (
             <div
-              key={college.id}
+              key={college._id}
               onClick={(e) => handleCardClick(college, e)}
               className={`bg-card text-card-foreground rounded-lg shadow-md dark:shadow-primary/5 border border-border p-6 ${
                 college.isJoined 
@@ -50,7 +72,7 @@ export default function CollegesList() {
                 <div>
                   <h2 className="text-xl font-semibold mb-2 text-foreground">{college.name}</h2>
                   <p className="text-muted-foreground">
-                    Founded in {college.foundedYear}
+                    Founded in {college.establishedYear || "N/A"}
                   </p>
                 </div>
 
@@ -58,26 +80,26 @@ export default function CollegesList() {
                   <div className="bg-muted/50 rounded-lg p-3">
                     <div className="flex items-center justify-center gap-1 font-semibold text-foreground">
                       <Users className="h-4 w-4" />
-                      <span>{college.members.toLocaleString()}</span>
+                      <span>{(college.members || 0).toLocaleString()}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">Members</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
                     <div className="flex items-center justify-center gap-1 font-semibold text-foreground">
                       <MessageSquare className="h-4 w-4" />
-                      <span>{college.questionsCount.toLocaleString()}</span>
+                      <span>{(college.questionsCount || 0).toLocaleString()}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">Questions</p>
                   </div>
                   <div className="bg-muted/50 rounded-lg p-3">
                     <div className="flex items-center justify-center gap-1 font-semibold text-foreground">
                       <Users className="h-4 w-4" />
-                      <span>{college.activeUsers.toLocaleString()}</span>
+                      <span>{(college.activeUsers || 0).toLocaleString()}</span>
                     </div>
                     <p className="text-sm text-muted-foreground">Active Users</p>
                   </div>
                   <button
-                    onClick={(e) => handleJoin(college.id, e)}
+                    onClick={(e) => handleJoin(college._id, e)}
                     className={`rounded-lg p-3 transition-colors ${
                       college.isJoined
                         ? "bg-primary/10 hover:bg-primary/20"
