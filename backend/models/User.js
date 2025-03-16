@@ -21,7 +21,11 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['student', 'faculty', 'visitor']
+    enum: ['student', 'faculty', 'visitor', 'admin']
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   },
   profilePicture: {
     type: String,
