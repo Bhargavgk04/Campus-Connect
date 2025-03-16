@@ -12,18 +12,20 @@ require('dotenv').config();
 const User = require('./models/User');
 const auth = require('./middleware/auth');
 const upload = require('./middleware/upload');
+const collegeRoutes = require('./routes/collegeRoutes');
 
 const app = express();
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
 const profilesDir = path.join(uploadsDir, 'profiles');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-if (!fs.existsSync(profilesDir)) {
-  fs.mkdirSync(profilesDir);
-}
+const collegesDir = path.join(uploadsDir, 'colleges');
+
+[uploadsDir, profilesDir, collegesDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
 // Middleware
 app.use(express.json());
@@ -36,26 +38,69 @@ app.use(cors({
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(async () => {
-    console.log('Connected to MongoDB');
-    // Drop the username index if it exists
-    try {
-      const collections = await mongoose.connection.db.collections();
-      const usersCollection = collections.find(c => c.collectionName === 'users');
-      if (usersCollection) {
-        await usersCollection.dropIndex('username_1');
-        console.log('Dropped username index');
-      }
-    } catch (error) {
-      // Ignore if index doesn't exist
-      if (!error.message.includes('index not found')) {
-        console.error('Error dropping index:', error);
-      }
+// Use college routes
+app.use('/api/colleges', collegeRoutes);
+
+// Create admin user if it doesn't exist
+const createAdminUser = async () => {
+  try {
+    const adminEmail = 'admin@collegial.com';
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    
+    if (!existingAdmin) {
+      const adminUser = new User({
+        name: 'Admin',
+        email: adminEmail,
+        password: 'admin123',
+        role: 'admin',
+        isAdmin: true
+      });
+      
+      await adminUser.save();
+      console.log('Admin user created successfully');
     }
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
+};
+
+// Connect to MongoDB
+mongoose.set('strictQuery', false);
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(async () => {
+  console.log('Connected to MongoDB');
+  await createAdminUser();
+  // Drop the username index if it exists
+  try {
+    const collections = await mongoose.connection.db.collections();
+    const usersCollection = collections.find(c => c.collectionName === 'users');
+    if (usersCollection) {
+      await usersCollection.dropIndex('username_1');
+      console.log('Dropped username index');
+    }
+  } catch (error) {
+    // Ignore if index doesn't exist
+    if (!error.message.includes('index not found')) {
+      console.error('Error dropping index:', error);
+    }
+  }
+})
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
+
+// Handle MongoDB connection events
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
 
 // Auth Routes
 app.post('/api/register', async (req, res) => {
@@ -68,6 +113,11 @@ app.post('/api/register', async (req, res) => {
         message: 'Missing required fields',
         required: ['email', 'password', 'name', 'role']
       });
+    }
+
+    // Prevent creation of admin users through regular registration
+    if (role === 'admin') {
+      return res.status(403).json({ message: 'Cannot create admin users through registration' });
     }
 
     // Validate role-specific fields
@@ -129,7 +179,8 @@ app.post('/api/register', async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        profilePicture: user.profilePicture
       }
     });
   } catch (error) {
@@ -156,7 +207,11 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ 
+      userId: user._id,
+      isAdmin: user.isAdmin
+    }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
     res.cookie('token', token, { 
       httpOnly: true, 
       maxAge: 24 * 60 * 60 * 1000,
@@ -171,7 +226,8 @@ app.post('/api/login', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        profilePicture: user.profilePicture
+        isAdmin: user.isAdmin,
+        profilePicture: user.profilePicture ? `http://localhost:8080${user.profilePicture}` : ''
       }
     });
   } catch (error) {
@@ -192,7 +248,14 @@ app.get('/api/profile', auth, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(user);
+    
+    // Add full URL to profile picture
+    const userData = user.toObject();
+    if (userData.profilePicture) {
+      userData.profilePicture = `http://localhost:8080${userData.profilePicture}`;
+    }
+    
+    res.json(userData);
   } catch (error) {
     console.error('Profile fetch error:', error);
     res.status(500).json({ message: 'Error fetching profile' });
@@ -225,7 +288,13 @@ app.patch('/api/profile', auth, upload.single('profilePicture'), async (req, res
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    // Add full URL to profile picture in response
+    const userData = user.toObject();
+    if (userData.profilePicture) {
+      userData.profilePicture = `http://localhost:8080${userData.profilePicture}`;
+    }
+
+    res.json(userData);
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({ message: 'Error updating profile' });
