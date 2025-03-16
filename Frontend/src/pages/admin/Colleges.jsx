@@ -1,5 +1,11 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, Search, School } from "lucide-react";
+import { toast } from "sonner";
+import axios from "axios";
+import AddCollegeDialog from "@/components/admin/AddCollegeDialog";
+import EditCollegeDialog from "@/components/admin/EditCollegeDialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,145 +14,165 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 
-const Colleges = () => {
+export default function AdminColleges() {
+  const [colleges, setColleges] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedCollege, setSelectedCollege] = useState(null);
 
-  // Fetch colleges
-  const { data: colleges = [], isLoading } = useQuery({
-    queryKey: ["admin", "colleges"],
-    queryFn: () => fetch("/api/admin/colleges").then((res) => res.json()),
-  });
+  useEffect(() => {
+    fetchColleges();
+  }, []);
 
-  // Delete college mutation
-  const deleteMutation = useMutation({
-    mutationFn: (collegeId) =>
-      fetch(`/api/admin/colleges/${collegeId}`, {
-        method: "DELETE",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["admin", "colleges"]);
-      toast({
-        title: "College deleted",
-        description: "The college has been successfully removed.",
+  const fetchColleges = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/colleges");
+      setColleges(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch colleges");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this college?")) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/colleges/${id}`, {
+        withCredentials: true,
       });
-    },
-  });
+      toast.success("College deleted successfully");
+      fetchColleges();
+    } catch (error) {
+      toast.error("Failed to delete college");
+    }
+  };
 
-  // Filter colleges based on search query
+  const handleEdit = (college) => {
+    setSelectedCollege(college);
+    setShowEditDialog(true);
+  };
+
   const filteredColleges = colleges.filter((college) =>
     college.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleDelete = (collegeId) => {
-    if (window.confirm("Are you sure you want to delete this college?")) {
-      deleteMutation.mutate(collegeId);
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Colleges</h2>
-          <p className="text-muted-foreground">
-            Manage all registered colleges and their details.
-          </p>
-        </div>
+    <div className="container mx-auto p-6">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Manage Colleges</h1>
+        <Button onClick={() => setShowAddDialog(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add College
+        </Button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex items-center space-x-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search colleges..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8"
+            className="pl-10"
           />
         </div>
       </div>
 
-      {/* Colleges Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Students</TableHead>
-              <TableHead>Questions</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+      {colleges.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-8 text-center">
+          <School className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+          <h2 className="mt-4 text-lg font-medium">No Colleges Found</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Get started by adding your first college using the "Add College" button above.
+          </p>
+          <Button
+            onClick={() => setShowAddDialog(true)}
+            className="mt-4"
+            variant="outline"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Your First College
+          </Button>
+        </div>
+      ) : (
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  Loading...
-                </TableCell>
+                <TableHead>Image</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Departments</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ) : filteredColleges.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No colleges found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredColleges.map((college) => (
-                <TableRow key={college.id}>
-                  <TableCell className="font-medium">{college.name}</TableCell>
-                  <TableCell>{college.studentCount}</TableCell>
-                  <TableCell>{college.questionCount}</TableCell>
+            </TableHeader>
+            <TableBody>
+              {filteredColleges.map((college) => (
+                <TableRow key={college._id}>
                   <TableCell>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        college.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {college.status}
-                    </span>
+                    <img
+                      src={college.image}
+                      alt={college.name}
+                      className="h-12 w-12 rounded-lg object-cover"
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{college.name}</TableCell>
+                  <TableCell>{college.location}</TableCell>
+                  <TableCell>
+                    {college.departments?.length || 0} departments
                   </TableCell>
                   <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(college.id)}
-                          className="text-red-600"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleEdit(college)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(college._id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <AddCollegeDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={fetchColleges}
+      />
+
+      {selectedCollege && (
+        <EditCollegeDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          college={selectedCollege}
+          onSuccess={fetchColleges}
+        />
+      )}
     </div>
   );
-};
-
-export default Colleges; 
+} 
