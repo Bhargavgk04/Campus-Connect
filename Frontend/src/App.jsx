@@ -1,8 +1,8 @@
 import { Toaster } from "./components/ui/toaster";
-import { Toaster as Sonner } from "./components/ui/sonner";
+import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import Questions from "./pages/Questions";
@@ -20,19 +20,21 @@ import AdminReports from "./pages/admin/Reports";
 import AdminLayout from "./components/layouts/AdminLayout";
 import About from "./pages/About";
 import MyHubs from "./pages/MyHubs";
-import { useLocation } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
-  const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup";
+  const isAuthRoute = location.pathname === "/auth";
 
   return (
     <>
       {!isAdminRoute && !isAuthRoute && <Navbar />}
       <Routes>
+        {/* Auth Routes */}
+        <Route path="/auth" element={<Auth />} />
+
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
@@ -43,8 +45,6 @@ const AppContent = () => {
 
         {/* Public Routes */}
         <Route path="/" element={<Index />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/signup" element={<Auth />} />
         <Route path="/questions" element={<Questions />} />
         <Route path="/question/:id" element={<QuestionDetail />} />
         <Route path="/colleges" element={<CollegesList />} />
@@ -55,6 +55,7 @@ const AppContent = () => {
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Sonner position="top-center" richColors />
     </>
   );
 };
@@ -62,11 +63,7 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <Router>
-        <AppContent />
-      </Router>
+      <AppContent />
     </TooltipProvider>
   </QueryClientProvider>
 );
