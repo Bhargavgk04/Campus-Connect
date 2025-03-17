@@ -19,6 +19,26 @@ const collegeSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  established: {
+    type: String,
+    required: true
+  },
+  courses: [{
+    type: String,
+    trim: true
+  }],
+  facilities: [{
+    type: String,
+    trim: true
+  }],
+  achievements: {
+    type: String,
+    trim: true
+  },
+  contactInfo: {
+    type: String,
+    required: true
+  },
   website: {
     type: String,
     trim: true
@@ -27,15 +47,16 @@ const collegeSchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
-  establishedYear: {
-    type: Number
-  },
   accreditation: {
     type: String,
     trim: true
   },
   ranking: {
     type: Number
+  },
+  questionsCount: {
+    type: Number,
+    default: 0
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
