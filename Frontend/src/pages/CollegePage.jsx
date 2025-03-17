@@ -1,30 +1,162 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { categories } from "../data/mockData";
+import axios from "axios";
+import PropTypes from "prop-types";
+import { School, Check } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CollegePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('questions');
+  const [college, setCollege] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isJoined, setIsJoined] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    fetchCollegeDetails();
+  }, [id]);
 
-  const college = {
-    id,
-    name: "Example University",
-    questionsCount: 1200,
-    rank: 15,
+  const fetchCollegeDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/colleges/${id}`);
+      setCollege(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to load college details");
+      setLoading(false);
+    }
   };
+
+  const handleJoin = async () => {
+    try {
+      // Here you would typically make an API call to join the college
+      setIsJoined(!isJoined);
+      toast.success(isJoined ? "Left college successfully" : "Joined college successfully");
+    } catch (error) {
+      toast.error("Failed to join college");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  if (!college) return null;
 
   return (
     <div className="min-h-screen bg-background">      
-      <main className="container max-w-7xl mx-auto px-4 pt-28 pb-16">
-        <h1 className="text-3xl font-bold mb-4 text-foreground">{college.name}</h1>
-        <p className="text-muted-foreground mb-8">Explore your college community</p>
-        
-        <div className="grid md:grid-cols-3 gap-6">
+      <main className="container max-w-7xl mx-auto px-4 pt-20 pb-16">
+        {/* Large College Image */}
+        <div className="w-full h-[400px] rounded-xl overflow-hidden mb-8 relative">
+          <img
+            src={college.image}
+            alt={college.name}
+            className="w-full h-full object-cover"
+          />
+          <button
+            onClick={handleJoin}
+            className={`absolute top-4 right-4 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+              isJoined
+                ? "bg-primary/10 hover:bg-primary/20 text-primary"
+                : "bg-primary hover:bg-primary/90 text-primary-foreground"
+            }`}
+          >
+            {isJoined ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span>Joined</span>
+              </>
+            ) : (
+              <>
+                <School className="h-4 w-4" />
+                <span>Join College</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* College Name */}
+        <h1 className="text-4xl font-bold mb-6 text-foreground">{college.name}</h1>
+
+        {/* College Description */}
+        <div className="prose prose-lg dark:prose-invert max-w-none mb-8">
+          <p className="text-xl text-muted-foreground">{college.description}</p>
+        </div>
+
+        {/* Other College Information */}
+        <div className="grid gap-6 bg-card rounded-xl p-6 border border-border">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-semibold">College Details</h2>
+            
+            {college.location && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Location</h3>
+                <p className="text-foreground">{college.location}</p>
+              </div>
+            )}
+
+            {college.established && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Established</h3>
+                <p className="text-foreground">{college.established}</p>
+              </div>
+            )}
+
+            {college.contactInfo && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Contact Information</h3>
+                <p className="text-foreground">{college.contactInfo}</p>
+              </div>
+            )}
+
+            {college.courses && college.courses.length > 0 && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Available Courses</h3>
+                <ul className="list-disc list-inside space-y-1">
+                  {college.courses.map((course, index) => (
+                    <li key={index} className="text-foreground">{course}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {college.facilities && college.facilities.length > 0 && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Facilities</h3>
+                <ul className="list-disc list-inside space-y-1">
+                  {college.facilities.map((facility, index) => (
+                    <li key={index} className="text-foreground">{facility}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {college.achievements && (
+              <div>
+                <h3 className="font-medium text-muted-foreground">Achievements</h3>
+                <p className="text-foreground">{college.achievements}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mt-8">
           <button
             className="bg-card text-card-foreground rounded-lg shadow-md dark:shadow-primary/5 border border-border p-6 hover:shadow-lg dark:hover:shadow-primary/10 transition-all duration-300 ease-in-out transform hover:-translate-y-1 w-full"
             onClick={() => {
@@ -34,7 +166,7 @@ export default function CollegePage() {
           >
             <h2 className="text-xl font-semibold mb-2">Questions</h2>
             <p className="text-3xl font-bold text-primary">
-              {college.questionsCount.toLocaleString()}
+              {(college.questionsCount || 0).toLocaleString()}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
               Total questions asked
@@ -69,7 +201,7 @@ export default function CollegePage() {
             onClick={() => navigate(`/ranking?college=${id}`)}
           >
             <h2 className="text-xl font-semibold mb-2">Ranking</h2>
-            <p className="text-3xl font-bold text-primary">#{college.rank}</p>
+            <p className="text-3xl font-bold text-primary">#{college.rank || 'N/A'}</p>
             <p className="text-sm text-muted-foreground mt-2">
               Your current rank
             </p>
@@ -104,3 +236,30 @@ export default function CollegePage() {
     </div>
   );
 }
+
+const collegeShape = PropTypes.shape({
+  _id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+  location: PropTypes.string,
+  established: PropTypes.string,
+  courses: PropTypes.arrayOf(PropTypes.string),
+  facilities: PropTypes.arrayOf(PropTypes.string),
+  achievements: PropTypes.string,
+  contactInfo: PropTypes.string,
+  questionsCount: PropTypes.number,
+  rank: PropTypes.number
+});
+
+CollegePage.propTypes = {
+  id: PropTypes.string,
+  navigate: PropTypes.func.isRequired,
+  setActiveSection: PropTypes.func.isRequired,
+  setCollege: PropTypes.func.isRequired,
+  setLoading: PropTypes.func.isRequired,
+  setError: PropTypes.func.isRequired,
+  college: collegeShape,
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string
+};
