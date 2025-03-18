@@ -14,6 +14,8 @@ export default function CollegePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isJoined, setIsJoined] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -23,7 +25,16 @@ export default function CollegePage() {
   const fetchCollegeDetails = async () => {
     try {
       const response = await axios.get(`http://localhost:8080/api/colleges/${id}`);
-      setCollege(response.data);
+      const collegeData = response.data;
+      setCollege(collegeData);
+      
+      // Ensure the image URL is properly formatted
+      if (collegeData.image && !collegeData.image.startsWith('http')) {
+        setImageUrl(`http://localhost:8080${collegeData.image}`);
+      } else {
+        setImageUrl(collegeData.image);
+      }
+      
       setLoading(false);
     } catch (err) {
       setError("Failed to load college details");
@@ -64,11 +75,20 @@ export default function CollegePage() {
       <main className="container max-w-7xl mx-auto px-4 pt-20 pb-16">
         {/* Large College Image */}
         <div className="w-full h-[400px] rounded-xl overflow-hidden mb-8 relative">
-          <img
-            src={college.image}
-            alt={college.name}
-            className="w-full h-full object-cover"
-          />
+          {!imageError ? (
+            <img
+              src={imageUrl}
+              alt={college.name}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-primary/10">
+              <span className="text-4xl font-medium text-primary">
+                {college.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
           <button
             onClick={handleJoin}
             className={`absolute top-4 right-4 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
