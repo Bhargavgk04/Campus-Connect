@@ -1,10 +1,19 @@
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer for storing profile pictures
+// Configure storage for different types of uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../uploads/profiles/'));
+    // Determine the destination based on the field name
+    let uploadPath;
+    if (file.fieldname === 'profilePicture') {
+      uploadPath = path.join(__dirname, '../uploads/profiles/');
+    } else if (file.fieldname === 'image') {
+      uploadPath = path.join(__dirname, '../uploads/colleges/');
+    } else {
+      uploadPath = path.join(__dirname, '../uploads/');
+    }
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -25,7 +34,7 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB max file size
+    fileSize: 10 * 1024 * 1024 // 10MB max file size
   }
 });
 
