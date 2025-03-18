@@ -12,6 +12,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [profileImageError, setProfileImageError] = useState(false);
   
   // Detect when page is scrolled
   useEffect(() => {
@@ -118,11 +119,12 @@ export default function Navbar() {
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 hover:border-primary transition-colors"
               >
-                {user.profilePicture ? (
+                {user.profilePicture && !profileImageError ? (
                   <img
-                    src={`http://localhost:5000${user.profilePicture}`}
+                    src={user.profilePicture}
                     alt={user.name}
                     className="w-full h-full object-cover"
+                    onError={() => setProfileImageError(true)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-primary/10">
@@ -186,11 +188,12 @@ export default function Navbar() {
           {user ? (
             <>
               <Link to="/profile" className="w-8 h-8 rounded-full overflow-hidden border-2 border-primary/20">
-                {user.profilePicture ? (
+                {user.profilePicture && !profileImageError ? (
                   <img
-                    src={`http://localhost:5000${user.profilePicture}`}
+                    src={user.profilePicture}
                     alt={user.name}
                     className="w-full h-full object-cover"
+                    onError={() => setProfileImageError(true)}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-primary/10">
