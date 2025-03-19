@@ -13,13 +13,14 @@ export default function CollegePage() {
   const [college, setCollege] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isJoined, setIsJoined] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchCollegeDetails();
+    checkEnrollmentStatus();
   }, [id]);
 
   const fetchCollegeDetails = async () => {
@@ -42,13 +43,33 @@ export default function CollegePage() {
     }
   };
 
-  const handleJoin = async () => {
+  const checkEnrollmentStatus = async () => {
     try {
-      // Here you would typically make an API call to join the college
-      setIsJoined(!isJoined);
-      toast.success(isJoined ? "Left college successfully" : "Joined college successfully");
+      const response = await axios.get(`http://localhost:8080/api/enrollment/check/${id}`, {
+        withCredentials: true
+      });
+      setIsEnrolled(response.data.isEnrolled);
     } catch (error) {
-      toast.error("Failed to join college");
+      console.error('Failed to check enrollment status:', error);
+    }
+  };
+
+  const handleEnrollment = async () => {
+    try {
+      if (isEnrolled) {
+        await axios.delete(`http://localhost:8080/api/enrollment/unenroll/${id}`, {
+          withCredentials: true
+        });
+        toast.success("Successfully unenrolled from college");
+      } else {
+        await axios.post(`http://localhost:8080/api/enrollment/enroll/${id}`, {}, {
+          withCredentials: true
+        });
+        toast.success("Successfully enrolled in college");
+      }
+      setIsEnrolled(!isEnrolled);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update enrollment status");
     }
   };
 
@@ -90,22 +111,22 @@ export default function CollegePage() {
             </div>
           )}
           <button
-            onClick={handleJoin}
+            onClick={handleEnrollment}
             className={`absolute top-4 right-4 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-              isJoined
+              isEnrolled
                 ? "bg-primary/10 hover:bg-primary/20 text-primary"
                 : "bg-primary hover:bg-primary/90 text-primary-foreground"
             }`}
           >
-            {isJoined ? (
+            {isEnrolled ? (
               <>
                 <Check className="h-4 w-4" />
-                <span>Joined</span>
+                <span>Enrolled</span>
               </>
             ) : (
               <>
                 <School className="h-4 w-4" />
-                <span>Join College</span>
+                <span>Enroll</span>
               </>
             )}
           </button>
