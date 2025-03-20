@@ -15,6 +15,7 @@ export default function CollegePage() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [isEnrolling, setIsEnrolling] = useState(false);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -54,21 +55,35 @@ export default function CollegePage() {
   };
 
   const handleEnrollment = async () => {
+    if (isEnrolling) return; // Prevent multiple clicks
+    
     try {
+      setIsEnrolling(true);
+      
       if (isEnrolled) {
         await axios.delete(`http://localhost:8080/api/enrollment/unenroll/${id}`, {
-          withCredentials: true
+          withCredentials: true,
+          timeout: 5000 // 5 second timeout
         });
         toast.success("Successfully unenrolled from college");
       } else {
         await axios.post(`http://localhost:8080/api/enrollment/enroll/${id}`, {}, {
-          withCredentials: true
+          withCredentials: true,
+          timeout: 5000 // 5 second timeout
         });
         toast.success("Successfully enrolled in college");
       }
       setIsEnrolled(!isEnrolled);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update enrollment status");
+      if (error.code === 'ECONNABORTED') {
+        toast.error("Request timed out. Please try again.");
+      } else if (error.response?.status === 401) {
+        toast.error("Please log in to enroll in colleges.");
+      } else {
+        toast.error(error.response?.data?.message || "Failed to update enrollment status");
+      }
+    } finally {
+      setIsEnrolling(false);
     }
   };
 
@@ -111,13 +126,21 @@ export default function CollegePage() {
           )}
           <button
             onClick={handleEnrollment}
+            disabled={isEnrolling}
             className={`absolute top-4 right-4 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-              isEnrolled
+              isEnrolling
+                ? "opacity-50 cursor-not-allowed"
+                : isEnrolled
                 ? "bg-primary/10 hover:bg-primary/20 text-primary"
                 : "bg-primary hover:bg-primary/90 text-primary-foreground"
             }`}
           >
-            {isEnrolled ? (
+            {isEnrolling ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-current"></div>
+                <span>{isEnrolled ? "Unenrolling..." : "Enrolling..."}</span>
+              </>
+            ) : isEnrolled ? (
               <>
                 <Check className="h-4 w-4" />
                 <span>Enrolled</span>
