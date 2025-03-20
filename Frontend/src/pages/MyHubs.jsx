@@ -8,6 +8,8 @@ export default function MyHubs() {
   const [enrolledColleges, setEnrolledColleges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -16,14 +18,35 @@ export default function MyHubs() {
 
   const fetchEnrolledColleges = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await axios.get('http://localhost:8080/api/enrollment/my-colleges', {
-        withCredentials: true
+        withCredentials: true,
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
       setEnrolledColleges(response.data);
-      setLoading(false);
+      setRetryCount(0);
     } catch (error) {
       console.error('Error fetching enrolled colleges:', error);
-      setError(error.response?.data?.message || 'Failed to fetch enrolled colleges');
+      
+      if (error.code === 'ECONNABORTED' || error.name === 'AbortError') {
+        setError('Request timed out. Please check your connection and try again.');
+      } else if (error.response?.status === 401) {
+        setError('Please log in to view your enrolled colleges.');
+      } else {
+        setError(error.response?.data?.message || 'Failed to fetch enrolled colleges');
+      }
+
+      if (retryCount < MAX_RETRIES) {
+        setRetryCount(prev => prev + 1);
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -31,7 +54,10 @@ export default function MyHubs() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Loading your enrolled colleges...</p>
+        </div>
       </div>
     );
   }
@@ -40,14 +66,26 @@ export default function MyHubs() {
     return (
       <div className="min-h-screen bg-background">
         <main className="container max-w-7xl mx-auto px-4 pt-28 pb-16">
-          <div className="text-red-500 text-center p-4">
-            <p className="mb-4">{error}</p>
-            <button
-              onClick={fetchEnrolledColleges}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Retry
-            </button>
+          <div className="text-center p-4">
+            <p className="text-red-500 mb-4">{error}</p>
+            {retryCount < MAX_RETRIES ? (
+              <button
+                onClick={fetchEnrolledColleges}
+                className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                Retry ({MAX_RETRIES - retryCount} attempts left)
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-muted-foreground">Unable to load your enrolled colleges.</p>
+                <Link
+                  to="/colleges"
+                  className="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Browse Colleges
+                </Link>
+              </div>
+            )}
           </div>
         </main>
       </div>
