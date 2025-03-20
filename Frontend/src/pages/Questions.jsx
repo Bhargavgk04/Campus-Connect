@@ -4,47 +4,91 @@ import Navbar from "../components/Navbar";
 import QuestionCard from "../components/QuestionCard";
 import CategorySelector from "../components/CategorySelector";
 import QuestionForm from "../components/QuestionForm";
-import { getQuestionsSortedByUpvotes, getQuestionsByCategory } from "../data/mockData";
 import { Filter, SortAsc, SortDesc } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function Questions() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || null);
   const [questions, setQuestions] = useState([]);
-  const [sortOrder, setSortOrder] = useState('popular');
+  const [sortOrder, setSortOrder] = useState('newest');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const collegeId = searchParams.get("college");
   
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    fetchQuestions();
+  }, [selectedCategory, sortOrder, collegeId]);
+
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let url = `http://localhost:8080/api/questions/college/${collegeId}`;
+      const params = new URLSearchParams();
+      
+      if (selectedCategory) {
+        params.append('category', selectedCategory);
+      }
+      
+      switch (sortOrder) {
+        case 'oldest':
+          params.append('sort', 'oldest');
+          break;
+        case 'most-answered':
+          params.append('sort', 'most-answered');
+          break;
+        case 'most-viewed':
+          params.append('sort', 'most-viewed');
+          break;
+        default:
+          params.append('sort', 'newest');
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await axios.get(url, {
+        withCredentials: true
+      });
+
+      setQuestions(response.data);
+    } catch (error) {
+      console.error('Error fetching questions:', error);
+      setError(error.response?.data?.message || 'Failed to fetch questions');
+      toast.error('Failed to load questions. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Update URL when category changes
   useEffect(() => {
+    const params = new URLSearchParams(searchParams);
     if (selectedCategory) {
-      setSearchParams({ category: selectedCategory });
+      params.set('category', selectedCategory);
     } else {
-      setSearchParams({});
+      params.delete('category');
     }
+    setSearchParams(params);
   }, [selectedCategory, setSearchParams]);
 
-  useEffect(() => {
-    let filteredQuestions;
-    
-    // Filter by category if selected
-    if (selectedCategory) {
-      filteredQuestions = getQuestionsByCategory(selectedCategory);
-    } else {
-      filteredQuestions = getQuestionsSortedByUpvotes();
-    }
-    
-    // Sort questions
-    if (sortOrder === 'popular') {
-      filteredQuestions.sort((a, b) => b.upvotes - a.upvotes);
-    } else {
-      filteredQuestions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    }
-    
-    setQuestions(filteredQuestions);
-  }, [selectedCategory, sortOrder]);
+  if (!collegeId) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <main className="pt-24 pb-16 px-4 md:px-6">
+          <div className="container max-w-7xl mx-auto text-center">
+            <p className="text-muted-foreground">Please select a college to view questions.</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -67,27 +111,39 @@ export default function Questions() {
                   
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => setSortOrder('popular')}
+                      onClick={() => setSortOrder('newest')}
                       className={`flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors ${
-                        sortOrder === 'popular'
+                        sortOrder === 'newest'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-foreground hover:bg-secondary/80'
                       }`}
                     >
                       <SortDesc className="h-4 w-4" />
-                      Popular
+                      Newest
                     </button>
                     
                     <button
-                      onClick={() => setSortOrder('recent')}
+                      onClick={() => setSortOrder('most-answered')}
                       className={`flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors ${
-                        sortOrder === 'recent'
+                        sortOrder === 'most-answered'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-foreground hover:bg-secondary/80'
                       }`}
                     >
                       <SortAsc className="h-4 w-4" />
-                      Recent
+                      Most Answered
+                    </button>
+
+                    <button
+                      onClick={() => setSortOrder('most-viewed')}
+                      className={`flex items-center gap-1 px-3 py-1 text-sm rounded-md transition-colors ${
+                        sortOrder === 'most-viewed'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      <SortAsc className="h-4 w-4" />
+                      Most Viewed
                     </button>
                   </div>
                 </div>
@@ -100,9 +156,23 @@ export default function Questions() {
               
               {/* Questions List */}
               <div className="space-y-6">
-                {questions.length > 0 ? (
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-8">
+                    <p className="text-red-500 mb-4">{error}</p>
+                    <button
+                      onClick={fetchQuestions}
+                      className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : questions.length > 0 ? (
                   questions.map((question) => (
-                    <QuestionCard key={question.id} question={question} />
+                    <QuestionCard key={question._id} question={question} />
                   ))
                 ) : (
                   <div className="text-center py-8">
@@ -114,7 +184,7 @@ export default function Questions() {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <QuestionForm />
+              <QuestionForm collegeId={collegeId} onQuestionAdded={fetchQuestions} />
             </div>
           </div>
         </div>
