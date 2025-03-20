@@ -59,7 +59,7 @@ const MyHub = () => {
           <p className="mb-4">{error}</p>
           <button
             onClick={fetchEnrolledColleges}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
           >
             Retry
           </button>
@@ -74,10 +74,10 @@ const MyHub = () => {
       
       {enrolledColleges.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">You haven't enrolled in any colleges yet.</p>
+          <p className="text-muted-foreground mb-4">You haven't enrolled in any colleges yet.</p>
           <button
             onClick={() => navigate('/colleges')}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
           >
             Browse Colleges
           </button>
@@ -87,23 +87,27 @@ const MyHub = () => {
           {enrolledColleges.map((enrollment) => (
             <div
               key={enrollment.college._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+              className="bg-card text-card-foreground rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-border"
             >
               <img
                 src={enrollment.college.image}
                 alt={enrollment.college.name}
                 className="w-full h-48 object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://via.placeholder.com/400x200?text=No+Image';
+                }}
               />
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-2">{enrollment.college.name}</h2>
-                <p className="text-gray-600 mb-4">{enrollment.college.description}</p>
+                <p className="text-muted-foreground mb-4">{enrollment.college.description}</p>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     Enrolled on: {new Date(enrollment.enrolledAt).toLocaleDateString()}
                   </span>
                   <button
                     onClick={() => handleUnenroll(enrollment.college._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+                    className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg hover:bg-destructive/90 transition-colors"
                   >
                     Unenroll
                   </button>
