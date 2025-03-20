@@ -1,34 +1,82 @@
 import { useState } from "react";
 import { PlusCircle } from "lucide-react";
-import { categories } from "../data/mockData";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function QuestionForm() {
+const categories = [
+  { id: 'academic', name: 'Academic' },
+  { id: 'campus-life', name: 'Campus Life' },
+  { id: 'admissions', name: 'Admissions' },
+  { id: 'careers', name: 'Careers' },
+  { id: 'general', name: 'General' }
+];
+
+export default function QuestionForm({ collegeId, onQuestionAdded }) {
+  const { user } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("Please log in to post a question");
+      return;
+    }
     
     if (!title || !content || !category) {
       toast.error("Please fill in all fields");
       return;
     }
     
+    if (!collegeId) {
+      toast.error("College ID is required");
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await axios.post('http://localhost:8080/api/questions', {
+        title,
+        content,
+        category,
+        college: collegeId,
+        tags: []
+      }, {
+        withCredentials: true
+      });
+
       toast.success("Question posted successfully!");
       setTitle("");
       setContent("");
       setCategory("");
+      
+      if (onQuestionAdded) {
+        onQuestionAdded();
+      }
+    } catch (error) {
+      console.error('Error posting question:', error);
+      toast.error(error.response?.data?.message || 'Failed to post question');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
+
+  if (!user) {
+    return (
+      <div className="glass rounded-xl p-6 animate-fade-in">
+        <h2 className="text-xl font-semibold mb-4">Ask a Question</h2>
+        <p className="text-muted-foreground text-center">
+          Please log in to post a question
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="glass rounded-xl p-6 animate-fade-in">
@@ -80,7 +128,7 @@ export default function QuestionForm() {
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
-                <option key={cat.id} value={cat.slug}>
+                <option key={cat.id} value={cat.id}>
                   {cat.name}
                 </option>
               ))}
