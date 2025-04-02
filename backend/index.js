@@ -18,6 +18,7 @@ const collegeRoutes = require('./routes/collegeRoutes');
 const enrollmentRoutes = require('./routes/enrollment');
 const questionRoutes = require('./routes/questions');
 const answerRoutes = require('./routes/answers');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -56,6 +57,9 @@ app.use('/api/enrollment', enrollmentRoutes);
 // Use question and answer routes
 app.use('/api/questions', questionRoutes);
 app.use('/api/answers', answerRoutes);
+
+// Use admin routes
+app.use('/api/admin', adminRoutes);
 
 // Create admin user if it doesn't exist
 const createAdminUser = async () => {
