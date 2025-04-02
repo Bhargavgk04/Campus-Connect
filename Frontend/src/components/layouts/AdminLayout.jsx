@@ -35,95 +35,74 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen transform border-r bg-card transition-transform duration-300 ease-in-out",
-          "w-[280px]",
-          !sidebarOpen && "-translate-x-full"
+          "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transition-transform duration-300",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-full flex-col">
-          {/* Sidebar Header */}
-          <div className="flex h-16 items-center justify-between border-b px-6">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Admin Panel
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-
-          <ScrollArea className="flex-1 py-4">
-            {/* Navigation Links */}
-            <nav className="space-y-1 px-3">
-              {menuItems.map((item) => (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground"
-                    )
-                  }
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </NavLink>
-              ))}
-            </nav>
-          </ScrollArea>
-
-          {/* Bottom Actions */}
-          <div className="border-t p-4">
-            <Separator className="my-2" />
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-primary/10"
-              onClick={handleLogout}
-            >
-              <LogOut className="mr-3 h-4 w-4" />
-              Back to Site
-            </Button>
-          </div>
+        <div className="flex h-16 items-center justify-between px-4 border-b border-border">
+          <h2 className="text-lg font-semibold">Admin Panel</h2>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-md hover:bg-muted"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        
+        <ScrollArea className="h-[calc(100vh-4rem)]">
+          <nav className="p-4 space-y-1">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )
+                }
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </ScrollArea>
+        
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2"
+            onClick={() => navigate('/')}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            View Site
+          </Button>
         </div>
       </aside>
 
       {/* Main Content */}
       <div
         className={cn(
-          "min-h-screen transition-all duration-300 ease-in-out",
-          sidebarOpen ? "lg:pl-[280px]" : ""
+          "transition-all duration-300",
+          sidebarOpen ? "ml-64" : "ml-0"
         )}
       >
-        {/* Top Bar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container flex items-center justify-between">
+        <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-full items-center justify-between px-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="shrink-0"
             >
-              {sidebarOpen ? (
-                <ChevronLeft className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              <Menu className="h-5 w-5" />
             </Button>
           </div>
         </header>
-
-        {/* Page Content */}
-        <main className="container py-6">
+        
+        <main className="p-6">
           <Outlet />
         </main>
       </div>

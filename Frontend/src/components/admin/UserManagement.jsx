@@ -103,7 +103,7 @@ const UserManagement = () => {
                 <Card key={user._id} className="p-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={user.profilePicture} />
+                      <AvatarImage src={user.profilePicture} alt={user.name} />
                       <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
