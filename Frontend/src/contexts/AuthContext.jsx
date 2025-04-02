@@ -84,6 +84,28 @@ export function AuthProvider({ children }) {
         withCredentials: true
       });
       setUser(response.data.user);
+      
+      // Admin users are directed to the admin panel
+      if (response.data.user.role === 'admin') {
+        navigate('/admin');
+      }
+      
+      // For regular users, check enrollment status and navigate accordingly
+      try {
+        const enrollmentResponse = await axios.get('http://localhost:8080/api/enrollment/my-colleges', {
+          withCredentials: true
+        });
+        
+        if (enrollmentResponse.data && enrollmentResponse.data.length > 0) {
+          navigate('/my-hub');
+        } else {
+          navigate('/colleges');
+        }
+      } catch (enrollmentError) {
+        console.error('Error checking enrollment:', enrollmentError);
+        navigate('/colleges');
+      }
+      
       return { success: true };
     } catch (error) {
       return {
@@ -102,6 +124,10 @@ export function AuthProvider({ children }) {
         withCredentials: true
       });
       setUser(response.data.user);
+      
+      // For new users, always navigate to profile page
+      navigate('/profile');
+      
       return { success: true };
     } catch (error) {
       return {
