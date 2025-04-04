@@ -81,11 +81,7 @@ export default function Navbar() {
                 About
               </Link>
             </>
-          ) : (
-            <Link to="/auth" className="text-foreground/80 hover:text-primary transition-colors">
-              Sign In
-            </Link>
-          )}
+          ) : null}
         </div>
 
         {/* Search Form */}
@@ -204,11 +200,7 @@ export default function Navbar() {
                 )}
               </Link>
             </>
-          ) : (
-            <Link to="/auth" className="text-foreground/80 hover:text-primary transition-colors">
-              Sign In
-            </Link>
-          )}
+          ) : null}
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 rounded-md text-foreground"
