@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ThumbsUp, MessageCircle, Heart, Share2 } from "lucide-react";
+import { ThumbsUp, MessageCircle, Heart, Share2, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { toast } from "sonner";
@@ -125,9 +125,9 @@ export default function QuestionCard({ question, isDetailed = false }) {
               <span>{question.answers?.length || 0} Answers</span>
             </Link>
             
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <Heart className="h-4 w-4" />
-              <span>{question.views || 0} Views</span>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Eye className="w-4 h-4" />
+              <span>{question.views || 0} views</span>
             </div>
             
             <button 
