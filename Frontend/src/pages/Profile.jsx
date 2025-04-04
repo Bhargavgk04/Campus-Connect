@@ -120,7 +120,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 py-12 px-4">
+    <div className="min-h-screen bg-muted/30 pt-24 pb-12 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="bg-card rounded-xl shadow-lg border border-border p-6">
           <div className="flex flex-col items-center gap-6">
