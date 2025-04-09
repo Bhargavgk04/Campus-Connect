@@ -10,6 +10,8 @@ const storage = multer.diskStorage({
       uploadPath = path.join(__dirname, '../uploads/profiles/');
     } else if (file.fieldname === 'image') {
       uploadPath = path.join(__dirname, '../uploads/colleges/');
+    } else if (file.fieldname === 'studentIdCard' || file.fieldname === 'facultyIdCard') {
+      uploadPath = path.join(__dirname, '../uploads/verification/');
     } else {
       uploadPath = path.join(__dirname, '../uploads/');
     }
@@ -21,9 +23,15 @@ const storage = multer.diskStorage({
   }
 });
 
-// File filter to only allow image files
+// File filter to allow image and PDF files for verification documents
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
+  if (file.fieldname === 'studentIdCard' || file.fieldname === 'facultyIdCard') {
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Please upload only images or PDF files for verification documents.'), false);
+    }
+  } else if (file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
     cb(new Error('Not an image! Please upload only images.'), false);
