@@ -10,6 +10,16 @@ import PropTypes from 'prop-types';
  * @property {string} email
  * @property {string} role
  * @property {string} [profilePicture]
+ * @property {string} [department]
+ * @property {string} [degree]
+ * @property {number} [year]
+ * @property {number} [passoutYear]
+ * @property {string} [linkedinProfile]
+ * @property {string} [studentIdCard]
+ * @property {string} [position]
+ * @property {string} [aictcNumber]
+ * @property {string} [facultyIdCard]
+ * @property {string} [grade]
  */
 
 /**
@@ -17,7 +27,7 @@ import PropTypes from 'prop-types';
  * @property {User|null} user
  * @property {boolean} loading
  * @property {(email: string, password: string) => Promise<{success: boolean, error?: string}>} login
- * @property {(userData: Object) => Promise<{success: boolean, error?: string}>} register
+ * @property {(formData: FormData) => Promise<{success: boolean, error?: string}>} register
  * @property {() => Promise<void>} logout
  * @property {(formData: FormData) => Promise<{success: boolean, error?: string}>} updateProfile
  */
@@ -101,38 +111,41 @@ export function AuthProvider({ children }) {
         } else {
           navigate('/colleges');
         }
-      } catch (enrollmentError) {
-        console.error('Error checking enrollment:', enrollmentError);
+      } catch (error) {
+        console.error('Error checking enrollment:', error);
         navigate('/colleges');
       }
       
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error?.response?.data?.message || 'An error occurred during login'
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Login failed. Please try again.' 
       };
     }
   };
 
   /**
-   * @param {Object} userData
+   * @param {FormData} formData
    */
-  const register = async (userData) => {
+  const register = async (formData) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/register', userData, {
+      const response = await axios.post('http://localhost:8080/api/register', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
         withCredentials: true
       });
-      setUser(response.data.user);
       
-      // For new users, always navigate to profile page
-      navigate('/profile');
-      
+      // Instead of setting user and navigating to profile, just navigate to login
+      navigate('/auth?mode=login');
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error?.response?.data?.message || 'An error occurred during registration'
+      console.error('Registration error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Registration failed. Please try again.' 
       };
     }
   };
@@ -155,33 +168,32 @@ export function AuthProvider({ children }) {
   const updateProfile = async (formData) => {
     try {
       const response = await axios.patch('http://localhost:8080/api/profile', formData, {
-        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        withCredentials: true
       });
-      setUser(prev => ({ ...prev, ...response.data }));
+      setUser(response.data);
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        error: error?.response?.data?.message || 'An error occurred while updating profile'
+      console.error('Profile update error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || 'Profile update failed. Please try again.' 
       };
     }
   };
- 
-  const value = {
-    user,
-    loading,
-    login,
-    register,
-    logout,
-    updateProfile
-  };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      login,
+      register,
+      logout,
+      updateProfile
+    }}>
+      {children}
     </AuthContext.Provider>
   );
 }
