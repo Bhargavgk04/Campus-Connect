@@ -1,26 +1,34 @@
 //mongodb+srv://udaymore742:campus742@cluster0.owa1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
-const express = require('express');
-const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-require('dotenv').config();
-const http = require('http');
-const socketService = require('./services/socketService');
+import express from 'express';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import { config } from 'dotenv';
+import http from 'http';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const User = require('./models/User');
-const auth = require('./middleware/auth');
-const upload = require('./middleware/upload');
-const collegeRoutes = require('./routes/collegeRoutes');
-const enrollmentRoutes = require('./routes/enrollment');
-const questionRoutes = require('./routes/questions');
-const answerRoutes = require('./routes/answers');
-const adminRoutes = require('./routes/admin');
-const authRoutes = require('./routes/auth');
-const profileRoutes = require('./routes/profile');
+import { initializeSocket } from './services/socketService.js';
+import User from './models/User.js';
+import auth from './middleware/auth.js';
+import upload from './middleware/upload.js';
+import collegeRoutes from './routes/collegeRoutes.js';
+import enrollmentRoutes from './routes/enrollment.js';
+import questionRoutes from './routes/questions.js';
+import answerRoutes from './routes/answers.js';
+import adminRoutes from './routes/admin.js';
+import authRoutes from './routes/auth.js';
+import profileRoutes from './routes/profile.js';
+import userRoutes from './routes/user.js';
+
+config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 
@@ -40,8 +48,10 @@ const verificationDir = path.join(uploadsDir, 'verification');
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  credentials: true
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Serve uploaded files
@@ -69,6 +79,9 @@ app.use('/api/auth', authRoutes);
 
 // Use profile routes
 app.use('/api/profile', profileRoutes);
+
+// Use user routes
+app.use('/api/user', userRoutes);
 
 // Create admin user if it doesn't exist
 const createAdminUser = async () => {
@@ -409,7 +422,7 @@ app.get('/api/users', auth, async (req, res) => {
 const server = http.createServer(app);
 
 // Initialize Socket.IO
-socketService.initializeSocket(server);
+initializeSocket(server);
 
 // Update the server listen call
 server.listen(process.env.PORT || 8080, () => {
