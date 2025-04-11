@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ThumbsUp, MessageCircle, Heart, Share2, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,9 +9,17 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function QuestionCard({ question, isDetailed = false }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [likes, setLikes] = useState(question.likes || []);
+  const [likesCount, setLikesCount] = useState(0);
   const [isLiking, setIsLiking] = useState(false);
-  const hasLiked = user && likes.includes(user.id);
+  const [hasLiked, setHasLiked] = useState(false);
+
+  useEffect(() => {
+    // Initialize likes count and hasLiked state
+    if (question.likes) {
+      setLikesCount(Array.isArray(question.likes) ? question.likes.length : question.likes);
+      setHasLiked(user && Array.isArray(question.likes) ? question.likes.includes(user.id) : false);
+    }
+  }, [question.likes, user]);
 
   const handleLike = async (e) => {
     e.preventDefault();
@@ -30,7 +38,8 @@ export default function QuestionCard({ question, isDetailed = false }) {
         {},
         { withCredentials: true }
       );
-      setLikes(response.data.likes);
+      setLikesCount(response.data.likes);
+      setHasLiked(!hasLiked);
     } catch (error) {
       console.error('Error liking question:', error);
       toast.error(error.response?.data?.message || 'Failed to update like');
@@ -120,7 +129,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
             )}
           >
             <ThumbsUp className={cn("h-4 w-4", hasLiked && "fill-primary")} />
-            <span>{likes.length}</span>
+            <span>{likesCount}</span>
           </button>
           
           <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
