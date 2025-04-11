@@ -1,8 +1,10 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
-const auth = require('../middleware/auth');
-const upload = require('../middleware/upload');
+import express from 'express';
+import { Router } from 'express';
+import User from '../models/User.js';
+import auth from '../middleware/auth.js';
+import upload from '../middleware/upload.js';
+
+const router = Router();
 
 // Get user profile
 router.get('/', auth, async (req, res) => {
@@ -142,4 +144,4 @@ router.post('/upload-picture', auth, upload.single('profilePicture'), async (req
   }
 });
 
-module.exports = router; 
+export default router; 
