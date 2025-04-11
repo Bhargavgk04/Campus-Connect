@@ -20,7 +20,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+    { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
     { icon: School, label: "Colleges", path: "/admin/colleges" },
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
