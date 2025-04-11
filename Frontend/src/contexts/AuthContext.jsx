@@ -97,7 +97,8 @@ export function AuthProvider({ children }) {
       
       // Admin users are directed to the admin panel
       if (response.data.user.role === 'admin') {
-        navigate('/admin');
+        navigate('/admin/dashboard');
+        return { success: true };
       }
       
       // For regular users, check enrollment status and navigate accordingly
