@@ -19,6 +19,8 @@ const enrollmentRoutes = require('./routes/enrollment');
 const questionRoutes = require('./routes/questions');
 const answerRoutes = require('./routes/answers');
 const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile');
 
 const app = express();
 
@@ -61,6 +63,12 @@ app.use('/api/answers', answerRoutes);
 
 // Use admin routes
 app.use('/api/admin', adminRoutes);
+
+// Use auth routes
+app.use('/api/auth', authRoutes);
+
+// Use profile routes
+app.use('/api/profile', profileRoutes);
 
 // Create admin user if it doesn't exist
 const createAdminUser = async () => {
@@ -248,7 +256,8 @@ app.post('/api/login', async (req, res) => {
 
     const token = jwt.sign({ 
       userId: user._id,
-      isAdmin: user.isAdmin
+      role: user.role,
+      isAdmin: user.role === 'admin'
     }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.cookie('token', token, { 
@@ -265,7 +274,7 @@ app.post('/api/login', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        isAdmin: user.isAdmin,
+        isAdmin: user.role === 'admin',
         profilePicture: user.profilePicture ? `http://localhost:8080${user.profilePicture}` : ''
       }
     });
