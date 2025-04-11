@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const enrollmentSchema = new mongoose.Schema({
   user: {
@@ -21,4 +21,4 @@ const enrollmentSchema = new mongoose.Schema({
 enrollmentSchema.index({ user: 1, college: 1 }, { unique: true });
 
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
-module.exports = Enrollment; 
+export default Enrollment; 

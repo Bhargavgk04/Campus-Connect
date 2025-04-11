@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const answerSchema = new mongoose.Schema({
   content: {
@@ -46,4 +46,5 @@ const answerSchema = new mongoose.Schema({
 answerSchema.index({ question: 1 });
 answerSchema.index({ author: 1 });
 
-module.exports = mongoose.model('Answer', answerSchema); 
+const Answer = mongoose.model('Answer', answerSchema);
+export default Answer; 

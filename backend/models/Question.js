@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const questionSchema = new mongoose.Schema({
   title: {
@@ -54,4 +54,5 @@ questionSchema.index({ college: 1, category: 1 });
 questionSchema.index({ author: 1 });
 questionSchema.index({ title: 'text', content: 'text' });
 
-module.exports = mongoose.model('Question', questionSchema); 
+const Question = mongoose.model('Question', questionSchema);
+export default Question; 
