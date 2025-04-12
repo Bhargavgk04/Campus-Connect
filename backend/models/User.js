@@ -136,6 +136,21 @@ const userSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  isSuspended: {
+    type: Boolean,
+    default: false
+  },
+  isPermanentlySuspended: {
+    type: Boolean,
+    default: false
+  },
+  suspensionCount: {
+    type: Number,
+    default: 0
+  },
+  suspensionEndsAt: {
+    type: Date
   }
 }, {
   timestamps: true
