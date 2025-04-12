@@ -1,89 +1,90 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ReportDialog } from "@/components/ReportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MoreHorizontal, Search, Trash, CheckCircle, XCircle } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
+import axios from "axios";
+import { formatDistanceToNow } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { Badge } from "@/components/ui/badge";
 
 const Reports = () => {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [isResolveDialogOpen, setIsResolveDialogOpen] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  // Fetch reports
-  const { data: reports = [], isLoading } = useQuery({
-    queryKey: ["admin", "reports"],
-    queryFn: () => fetch("/api/admin/reports").then((res) => res.json()),
-  });
+  useEffect(() => {
+    // Check if user is admin
+    if (!user || user.role !== 'admin') {
+      navigate('/');
+      return;
+    }
+    fetchReports();
+  }, [filterType, filterStatus, searchQuery, user]);
 
-  // Report action mutation
-  const reportActionMutation = useMutation({
-    mutationFn: ({ reportId, action }) =>
-      fetch(`/api/admin/reports/${reportId}/${action}`, {
-        method: "POST",
-      }),
-    onSuccess: (_, { action }) => {
-      queryClient.invalidateQueries(["admin", "reports"]);
-      toast({
-        title: "Report updated",
-        description: `Report has been ${action}ed successfully.`,
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:8080/api/reports', {
+        params: {
+          type: filterType === 'all' ? undefined : filterType,
+          status: filterStatus === 'all' ? undefined : filterStatus,
+          search: searchQuery || undefined
+        },
+        withCredentials: true
       });
-    },
-  });
-
-  // Delete content mutation
-  const deleteContentMutation = useMutation({
-    mutationFn: ({ contentId, type }) =>
-      fetch(`/api/admin/${type}/${contentId}`, {
-        method: "DELETE",
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["admin", "reports"]);
-      toast({
-        title: "Content deleted",
-        description: "The reported content has been removed.",
-      });
-    },
-  });
-
-  // Filter reports based on search query and type
-  const filteredReports = reports.filter(
-    (report) =>
-      (report.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        report.reporter.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (filterType === "all" || report.type === filterType)
-  );
-
-  const handleReportAction = (reportId, action) => {
-    reportActionMutation.mutate({ reportId, action });
+      setReports(response.data);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      if (error.response?.status === 401) {
+        toast.error('Please log in as an admin to view reports');
+        navigate('/auth?mode=login');
+      } else {
+        toast.error('Failed to fetch reports');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteContent = (contentId, type) => {
-    if (window.confirm("Are you sure you want to delete this content?")) {
-      deleteContentMutation.mutate({ contentId, type });
+  const handleResolve = async (data) => {
+    try {
+      await axios.put(`http://localhost:8080/api/reports/${selectedReport._id}/resolve`, {
+        resolution: data.resolution
+      }, { withCredentials: true });
+      toast.success('Report resolved successfully');
+      setIsResolveDialogOpen(false);
+      setSelectedReport(null);
+      fetchReports(); // Refresh the reports list
+    } catch (error) {
+      console.error('Error resolving report:', error);
+      toast.error('Failed to resolve report');
     }
+  };
+
+  const handleNavigateToContent = () => {
+    if (selectedReport && selectedReport.contentType === 'question') {
+      navigate(`/question/${selectedReport.reportedContent}`);
+      setIsResolveDialogOpen(false);
+      setSelectedReport(null);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const variants = {
+      resolved: "bg-green-100 text-green-700",
+      pending: "bg-yellow-100 text-yellow-700"
+    };
+    return variants[status] || "bg-gray-100 text-gray-700";
   };
 
   return (
@@ -113,96 +114,80 @@ const Reports = () => {
             <SelectValue placeholder="Filter by type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Reports</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="question">Questions</SelectItem>
             <SelectItem value="answer">Answers</SelectItem>
-            <SelectItem value="comment">Comments</SelectItem>
-            <SelectItem value="profile">Profiles</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="resolved">Resolved</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Reports Table */}
+      {/* Reports List */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Content</TableHead>
-              <TableHead>Reporter</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  Loading...
-                </TableCell>
-              </TableRow>
-            ) : filteredReports.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  No reports found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredReports.map((report) => (
-                <TableRow key={report.id}>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
-                      {report.type}
-                    </span>
-                  </TableCell>
-                  <TableCell className="max-w-md truncate">
-                    {report.content}
-                  </TableCell>
-                  <TableCell>{report.reporter}</TableCell>
-                  <TableCell>{report.reason}</TableCell>
-                  <TableCell>
-                    {new Date(report.date).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            handleDeleteContent(report.contentId, report.type)
-                          }
-                          className="text-red-600"
-                        >
-                          <Trash className="mr-2 h-4 w-4" />
-                          Delete Content
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleReportAction(report.id, "dismiss")}
-                          className="text-green-600"
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Dismiss Report
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleReportAction(report.id, "escalate")}
-                          className="text-yellow-600"
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Escalate
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+        {loading ? (
+          <div className="p-4 text-center">Loading reports...</div>
+        ) : reports.length === 0 ? (
+          <div className="p-4 text-center">No reports found</div>
+        ) : (
+          <div className="divide-y">
+            {reports.map((report) => (
+              <div key={report._id} className="p-4 hover:bg-muted/50">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{report.category}</span>
+                      <Badge className={getStatusBadge(report.status)}>
+                        {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">
+                        {formatDistanceToNow(new Date(report.createdAt), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{report.description}</p>
+                    <div className="text-sm">
+                      <span className="font-medium">Content Type:</span> {report.contentType}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {report.status === 'pending' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedReport(report);
+                          setIsResolveDialogOpen(true);
+                        }}
+                        className="hover:bg-blue-500 hover:text-white"
+                      >
+                        Resolve
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <ReportDialog
+          isOpen={isResolveDialogOpen}
+          onClose={() => {
+            setIsResolveDialogOpen(false);
+            setSelectedReport(null);
+          }}
+          onSubmit={handleResolve}
+          isResolveDialog={true}
+          report={selectedReport}
+          onNavigateToContent={handleNavigateToContent}
+        />
       </div>
     </div>
   );
