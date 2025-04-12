@@ -16,6 +16,7 @@ import { initializeSocket } from './services/socketService.js';
 import User from './models/User.js';
 import { auth } from './middleware/auth.js';
 import upload from './middleware/upload.js';
+import { errorHandler } from './utils/errorHandler.js';
 import collegeRoutes from './routes/collegeRoutes.js';
 import enrollmentRoutes from './routes/enrollment.js';
 import questionRoutes from './routes/questions.js';
@@ -86,6 +87,9 @@ app.use('/api/user', userRoutes);
 
 // Use report routes
 app.use('/api/reports', reportRoutes);
+
+// Error handling middleware (should be last)
+app.use(errorHandler);
 
 // Create admin user if it doesn't exist
 const createAdminUser = async () => {
