@@ -3,6 +3,7 @@ import { Router } from 'express';
 import User from '../models/User.js';
 import College from '../models/College.js';
 import Question from '../models/Question.js';
+import Report from '../models/Report.js';
 import { adminAuth } from '../middleware/adminAuth.js';
 
 const router = Router();
@@ -30,8 +31,8 @@ router.get('/dashboard', adminAuth, async (req, res) => {
     // Get total questions
     const totalQuestions = await Question.countDocuments();
     
-    // Get reported content (to be implemented)
-    const reportedContent = 0; // This will be implemented when reporting system is added
+    // Get reported content count (pending reports)
+    const reportedContent = await Report.countDocuments({ status: 'pending' });
     
     // Get recent activity
     const recentActivity = await Promise.all([
