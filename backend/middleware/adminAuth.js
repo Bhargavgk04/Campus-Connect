@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const adminAuth = async (req, res, next) => {
+export const adminAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
@@ -11,7 +11,7 @@ const adminAuth = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
     
-    if (!user || !user.isAdmin) {
+    if (!user || user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
 
@@ -19,8 +19,10 @@ const adminAuth = async (req, res, next) => {
     req.isAdmin = true;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
+    console.error('Admin auth error:', error);
+    res.status(500).json({ 
+      message: 'Authentication error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
-};
-
-export default adminAuth; 
+}; 
