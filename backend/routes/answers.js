@@ -3,6 +3,7 @@ import { Router } from 'express';
 import Question from '../models/Question.js';
 import Answer from '../models/Answer.js';
 import { auth } from '../middleware/auth.js';
+import { contentFilter } from '../middleware/contentFilter.js';
 import {
   emitNewAnswer,
   emitAnswerUpdate,
@@ -46,7 +47,7 @@ router.get('/question/:questionId', async (req, res) => {
 });
 
 // Create a new answer
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, contentFilter, async (req, res) => {
   try {
     const { content, questionId } = req.body;
     
