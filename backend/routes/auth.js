@@ -2,7 +2,7 @@ import express from 'express';
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import auth from '../middleware/auth.js';
+import {auth} from '../middleware/auth.js';
 
 const router = Router();
 
@@ -14,6 +14,34 @@ router.post('/login', async (req, res) => {
     
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check for permanent suspension
+    if (user.isPermanentlySuspended) {
+      return res.status(403).json({
+        message: 'Your account has been permanently suspended.',
+        isSuspended: true,
+        isPermanent: true
+      });
+    }
+
+    // Check for temporary suspension
+    if (user.isSuspended && user.suspensionEndsAt) {
+      const now = new Date();
+      if (now < user.suspensionEndsAt) {
+        const hoursLeft = Math.ceil((user.suspensionEndsAt - now) / (1000 * 60 * 60));
+        return res.status(403).json({
+          message: `Your account is suspended for ${hoursLeft} more hours.`,
+          isSuspended: true,
+          isPermanent: false,
+          suspensionEndsAt: user.suspensionEndsAt
+        });
+      } else {
+        // Suspension period is over, clear the suspension
+        user.isSuspended = false;
+        user.suspensionEndsAt = null;
+        await user.save();
+      }
     }
 
     const token = jwt.sign({ 
