@@ -3,9 +3,20 @@ import { Router } from 'express';
 import User from '../models/User.js';
 import College from '../models/College.js';
 import Question from '../models/Question.js';
-import adminAuth from '../middleware/adminAuth.js';
+import { adminAuth } from '../middleware/adminAuth.js';
 
 const router = Router();
+
+// Get all users (admin only)
+router.get('/users', adminAuth, async (req, res) => {
+  try {
+    const users = await User.find({}, '-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+});
 
 // Get dashboard statistics
 router.get('/dashboard', adminAuth, async (req, res) => {
