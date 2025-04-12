@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const auth = async (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
@@ -29,6 +29,34 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
+    // Check for permanent suspension
+    if (user.isPermanentlySuspended) {
+      return res.status(403).json({
+        message: 'Your account has been permanently suspended.',
+        isSuspended: true,
+        isPermanent: true
+      });
+    }
+
+    // Check for temporary suspension
+    if (user.isSuspended && user.suspensionEndsAt) {
+      const now = new Date();
+      if (now < user.suspensionEndsAt) {
+        const hoursLeft = Math.ceil((user.suspensionEndsAt - now) / (1000 * 60 * 60));
+        return res.status(403).json({
+          message: `Your account is suspended for ${hoursLeft} more hours.`,
+          isSuspended: true,
+          isPermanent: false,
+          suspensionEndsAt: user.suspensionEndsAt
+        });
+      } else {
+        // Suspension period is over, clear the suspension
+        user.isSuspended = false;
+        user.suspensionEndsAt = null;
+        await user.save();
+      }
+    }
+
     req.user = user;
     req.userId = decoded.userId;
     next();
@@ -41,4 +69,26 @@ const auth = async (req, res, next) => {
   }
 };
 
-export default auth;
+export const isAdmin = async (req, res, next) => {
+  try {
+    // First run the auth middleware
+    await auth(req, res, () => {});
+
+    // If auth middleware sent a response, return early
+    if (res.headersSent) {
+      return;
+    }
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin only.' });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Admin check error:', error);
+    res.status(500).json({ 
+      message: 'Authorization error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+}; 
