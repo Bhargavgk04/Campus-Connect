@@ -13,6 +13,24 @@ import {
 
 const router = Router();
 
+// Get a single answer by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const answer = await Answer.findById(req.params.id)
+      .populate('author', 'name profilePicture')
+      .populate('question', 'title');
+
+    if (!answer) {
+      return res.status(404).json({ message: 'Answer not found' });
+    }
+
+    res.json(answer);
+  } catch (error) {
+    console.error('Error fetching answer:', error);
+    res.status(500).json({ message: 'Error fetching answer' });
+  }
+});
+
 // Get all answers for a question
 router.get('/question/:questionId', async (req, res) => {
   try {

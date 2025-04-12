@@ -58,6 +58,11 @@ router.get('/college/:collegeId', async (req, res) => {
 // Get a single question with its answers
 router.get('/:id', async (req, res) => {
   try {
+    // Check if ID is valid
+    if (!req.params.id || req.params.id === 'undefined') {
+      return res.status(400).json({ message: 'Invalid question ID' });
+    }
+
     const question = await Question.findById(req.params.id)
       .populate('author', 'name profilePicture')
       .populate({
@@ -79,6 +84,9 @@ router.get('/:id', async (req, res) => {
     res.json(question);
   } catch (error) {
     console.error('Error fetching question:', error);
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid question ID format' });
+    }
     res.status(500).json({ message: 'Error fetching question' });
   }
 });

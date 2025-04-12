@@ -15,6 +15,10 @@ const reportSchema = new mongoose.Schema({
     enum: ['question', 'answer'],
     required: true
   },
+  questionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Question'
+  },
   category: {
     type: String,
     required: true

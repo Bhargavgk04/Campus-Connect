@@ -12,12 +12,22 @@ router.post('/', auth, async (req, res) => {
   try {
     const { reportedContent, contentType, category, description } = req.body;
     
+    // If reporting an answer, get the question ID
+    let questionId = null;
+    if (contentType === 'answer') {
+      const answer = await Answer.findById(reportedContent);
+      if (answer) {
+        questionId = answer.question;
+      }
+    }
+    
     const report = new Report({
       reporter: req.user._id,
       reportedContent,
       contentType,
       category,
-      description
+      description,
+      questionId
     });
 
     await report.save();
