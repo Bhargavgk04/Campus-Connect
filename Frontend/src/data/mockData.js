@@ -2,54 +2,60 @@
 export const categories = [
   {
     id: "cat-1",
+    name: "Academic",
+    slug: "academic",
+    description: "Questions about courses, majors, and academic programs"
+  },
+  {
+    id: "cat-2",
+    name: "Campus Life",
+    slug: "campus-life",
+    description: "Questions about campus facilities, events, and student life"
+  },
+  {
+    id: "cat-3",
     name: "Admissions",
     slug: "admissions",
     description: "Questions about college admissions process and requirements"
   },
   {
-    id: "cat-2",
-    name: "Courses & Academics",
-    slug: "courses-academics",
-    description: "Questions about courses, majors, and academic programs"
-  },
-  {
-    id: "cat-3",
-    name: "Placement & Internship",
-    slug: "placement-internship",
-    description: "Questions about job placements and internship opportunities"
-  },
-  {
     id: "cat-4",
+    name: "Careers",
+    slug: "careers",
+    description: "Questions about job placements, internships, and career guidance"
+  },
+  {
+    id: "cat-5",
+    name: "General",
+    slug: "general",
+    description: "General questions about college and student life"
+  },
+  {
+    id: "cat-6",
     name: "Exams & Results",
     slug: "exams-results",
     description: "Questions about examinations, grading, and academic results"
   },
   {
-    id: "cat-5",
+    id: "cat-7",
     name: "Scholarship",
     slug: "scholarship",
     description: "Questions about scholarships and financial aid"
   },
   {
-    id: "cat-6",
-    name: "Career Guidance",
-    slug: "career-guidance",
-    description: "Questions about career planning and professional development"
-  },
-  {
-    id: "cat-7",
+    id: "cat-8",
     name: "Fresher Queries",
     slug: "fresher-queries",
     description: "Questions specifically for new students and freshers"
   },
   {
-    id: "cat-8",
+    id: "cat-9",
     name: "Alumni Network",
     slug: "alumni-network",
     description: "Questions and discussions with college alumni"
   },
   {
-    id: "cat-9",
+    id: "cat-10",
     name: "Academic Projects",
     slug: "academic-projects",
     description: "Questions about academic and research projects"
@@ -183,7 +189,7 @@ export const questions = [
     content: "I have several research papers due this semester. What software or tools do you recommend for writing and organizing research?",
     author: users[2],
     category: {
-      id: "cat-9",
+      id: "cat-10",
       name: "Academic Projects",
       slug: "academic-projects",
       description: "Questions about academic and research projects"
@@ -217,10 +223,10 @@ export const questions = [
     content: "I'm transferring next semester and trying to decide on housing. Which dorms would you recommend for a transfer student who wants a social atmosphere but also quiet study spaces?",
     author: users[1],
     category: {
-      id: "cat-1",
-      name: "Admissions",
-      slug: "admissions",
-      description: "Questions about college admissions process and requirements"
+      id: "cat-3",
+      name: "Placement & Internship",
+      slug: "placement-internship",
+      description: "Questions about job placements and internship opportunities"
     },
     upvotes: 16,
     likes: 12,
