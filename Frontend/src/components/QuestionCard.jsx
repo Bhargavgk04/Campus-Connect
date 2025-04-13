@@ -14,6 +14,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
   const [isLiking, setIsLiking] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [viewCount, setViewCount] = useState(question.views || 0);
 
   useEffect(() => {
     // Initialize likes count and hasLiked state
@@ -22,6 +23,28 @@ export default function QuestionCard({ question, isDetailed = false }) {
       setHasLiked(user && Array.isArray(question.likes) ? question.likes.includes(user.id) : false);
     }
   }, [question.likes, user]);
+
+  const handleView = async () => {
+    try {
+      // Check if user has already viewed this question
+      const viewedQuestions = JSON.parse(localStorage.getItem('viewedQuestions') || '{}');
+      if (!viewedQuestions[question._id]) {
+        // Mark question as viewed
+        viewedQuestions[question._id] = true;
+        localStorage.setItem('viewedQuestions', JSON.stringify(viewedQuestions));
+        
+        // Increment view count
+        const response = await axios.post(
+          `http://localhost:8080/api/questions/${question._id}/view`,
+          {},
+          { withCredentials: true }
+        );
+        setViewCount(response.data.views);
+      }
+    } catch (error) {
+      console.error('Error incrementing view count:', error);
+    }
+  };
 
   const handleLike = async (e) => {
     e.preventDefault();
@@ -76,6 +99,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
 
   const handleCardClick = (e) => {
     if (e.target.closest('button')) return;
+    handleView();
     navigate(`/question/${question._id}`);
   };
 
@@ -156,7 +180,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
           
           <div className="flex items-center gap-2 text-muted-foreground">
             <Eye className="w-4 h-4" />
-            <span>{question.views || 0} views</span>
+            <span>{viewCount} views</span>
           </div>
           
           <button 
