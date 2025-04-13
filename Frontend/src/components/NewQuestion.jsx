@@ -101,6 +101,11 @@ export default function NewQuestion({ collegeId }) {
             <option value="admissions">Admissions</option>
             <option value="careers">Careers</option>
             <option value="general">General</option>
+            <option value="exams-results">Exams & Results</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="fresher-queries">Fresher Queries</option>
+            <option value="alumni-network">Alumni Network</option>
+            <option value="academic-projects">Academic Projects</option>
           </select>
         </div>
 
