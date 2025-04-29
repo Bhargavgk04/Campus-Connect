@@ -6,6 +6,7 @@ import Question from '../models/Question.js';
 import Report from '../models/Report.js';
 import RestrictedWord from '../models/RestrictedWord.js';
 import { adminAuth } from '../middleware/adminAuth.js';
+import bcrypt from 'bcryptjs';
 
 const router = Router();
 
@@ -111,6 +112,47 @@ router.delete('/restricted-words/:id', adminAuth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting restricted word:', error);
     res.status(500).json({ message: 'Error deleting restricted word' });
+  }
+});
+
+// Add new admin
+router.post('/add-admin', adminAuth, async (req, res) => {
+  try {
+    const { name, email, password, adminRole } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with this email already exists' });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new admin user
+    const newAdmin = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'admin',
+      adminRole,
+      isAdmin: true
+    });
+
+    await newAdmin.save();
+
+    // Remove password from response
+    const adminData = newAdmin.toObject();
+    delete adminData.password;
+
+    res.status(201).json({
+      message: 'Admin added successfully',
+      admin: adminData
+    });
+  } catch (error) {
+    console.error('Error adding admin:', error);
+    res.status(500).json({ message: 'Error adding admin' });
   }
 });
 

@@ -6,6 +6,20 @@ import upload from '../middleware/upload.js';
 
 const router = Router();
 
+// Get user profile by ID (for viewing other users' profiles)
+router.get('/:userId', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 // Get user profile
 router.get('/', auth, async (req, res) => {
   try {

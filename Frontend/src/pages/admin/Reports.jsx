@@ -3,13 +3,21 @@ import { useNavigate } from "react-router-dom";
 import { ReportDialog } from "@/components/ReportDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Reports = () => {
   const { user } = useAuth();
@@ -18,6 +26,8 @@ const Reports = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedReport, setSelectedReport] = useState(null);
   const [isResolveDialogOpen, setIsResolveDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -76,6 +86,26 @@ const Reports = () => {
       navigate(`/question/${selectedReport.reportedContent}`);
       setIsResolveDialogOpen(false);
       setSelectedReport(null);
+    }
+  };
+
+  const handleDelete = async (reportId) => {
+    setReportToDelete(reportId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/reports/${reportToDelete}`, {
+        withCredentials: true
+      });
+      toast.success('Report deleted successfully');
+      setIsDeleteDialogOpen(false);
+      setReportToDelete(null);
+      fetchReports(); // Refresh the reports list
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      toast.error('Failed to delete report');
     }
   };
 
@@ -171,6 +201,14 @@ const Reports = () => {
                         Resolve
                       </Button>
                     )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(report._id)}
+                      className="hover:bg-red-500 hover:text-white"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -188,6 +226,35 @@ const Reports = () => {
           report={selectedReport}
           onNavigateToContent={handleNavigateToContent}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Report</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this report? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDeleteDialogOpen(false);
+                  setReportToDelete(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

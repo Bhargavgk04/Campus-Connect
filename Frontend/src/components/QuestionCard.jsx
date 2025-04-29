@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReportDialog } from "./ReportDialog";
+import ViewProfileDialog from "./ViewProfileDialog";
 
 export default function QuestionCard({ question, isDetailed = false }) {
   const { user } = useAuth();
@@ -14,6 +15,8 @@ export default function QuestionCard({ question, isDetailed = false }) {
   const [isLiking, setIsLiking] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isViewProfileOpen, setIsViewProfileOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [viewCount, setViewCount] = useState(question.views || 0);
 
   useEffect(() => {
@@ -103,11 +106,21 @@ export default function QuestionCard({ question, isDetailed = false }) {
     navigate(`/question/${question._id}`);
   };
 
+  const handleViewProfile = (e, userId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedUserId(userId);
+    setIsViewProfileOpen(true);
+  };
+
   const CardContent = () => (
     <div className="flex items-start gap-4">
       {/* Avatar */}
       <div className="shrink-0">
-        <Link to={`/profile/${question.author._id}`} className="block">
+        <button
+          onClick={(e) => handleViewProfile(e, question.author._id)}
+          className="block"
+        >
           {question.author.profilePicture ? (
             <img 
               src={question.author.profilePicture}
@@ -125,7 +138,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
               </span>
             </div>
           )}
-        </Link>
+        </button>
       </div>
 
       {/* Content */}
@@ -138,9 +151,12 @@ export default function QuestionCard({ question, isDetailed = false }) {
             {question.title}
           </h3>
           <div className="flex items-center text-xs text-muted-foreground">
-            <Link to={`/profile/${question.author._id}`} className="font-medium hover:text-primary transition-colors">
+            <button
+              onClick={(e) => handleViewProfile(e, question.author._id)}
+              className="font-medium hover:text-primary transition-colors"
+            >
               {question.author.name}
-            </Link>
+            </button>
             <span className="mx-1.5">•</span>
             <span className="hover:text-primary transition-colors">
               {question.category}
@@ -233,6 +249,12 @@ export default function QuestionCard({ question, isDetailed = false }) {
         isOpen={isReportDialogOpen}
         onClose={() => setIsReportDialogOpen(false)}
         onSubmit={handleReport}
+      />
+
+      <ViewProfileDialog
+        isOpen={isViewProfileOpen}
+        onClose={() => setIsViewProfileOpen(false)}
+        userId={selectedUserId}
       />
     </>
   );

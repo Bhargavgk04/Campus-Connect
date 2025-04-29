@@ -3,6 +3,7 @@ import { Router } from 'express';
 import User from '../models/User.js';
 import College from '../models/College.js';
 import Enrollment from '../models/Enrollment.js';
+import Question from '../models/Question.js';
 import { auth } from '../middleware/auth.js';
 
 const router = Router();
@@ -84,8 +85,23 @@ router.get('/my-colleges', auth, async (req, res) => {
       .populate('college')
       .sort('-enrolledAt');
 
+    // Get member count and question count for each college
+    const enrollmentsWithCounts = await Promise.all(enrollments.map(async enrollment => {
+      const memberCount = await Enrollment.countDocuments({ college: enrollment.college._id });
+      const questionCount = await Question.countDocuments({ college: enrollment.college._id });
+      
+      return {
+        ...enrollment.toObject(),
+        college: {
+          ...enrollment.college.toObject(),
+          members: memberCount,
+          questionsCount: questionCount
+        }
+      };
+    }));
+
     console.log('Successfully fetched enrolled colleges');
-    res.json(enrollments);
+    res.json(enrollmentsWithCounts);
   } catch (error) {
     console.error('Error fetching enrolled colleges:', error);
     res.status(500).json({ 

@@ -121,4 +121,20 @@ router.put('/:id/resolve', isAdmin, async (req, res) => {
   }
 });
 
+// Delete a report
+router.delete('/:id', isAdmin, async (req, res) => {
+  try {
+    const report = await Report.findById(req.params.id);
+    
+    if (!report) {
+      return res.status(404).json({ message: 'Report not found' });
+    }
+
+    await Report.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Report deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router; 

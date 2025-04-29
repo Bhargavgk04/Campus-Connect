@@ -9,7 +9,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  Shield
+  Shield,
+  UserPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ const AdminLayout = () => {
     { icon: Users, label: "Users", path: "/admin/users" },
     { icon: AlertTriangle, label: "Reports", path: "/admin/reports" },
     { icon: Shield, label: "Content Filter", path: "/admin/content-filter" },
+    { icon: UserPlus, label: "Add Admin", path: "/admin/add-admin" },
   ];
 
   const handleLogout = () => {

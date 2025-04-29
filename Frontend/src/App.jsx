@@ -18,6 +18,7 @@ import AdminColleges from "./pages/admin/Colleges";
 import UserManagementPage from "./pages/admin/Users";
 import AdminReports from "./pages/admin/Reports";
 import ContentFilter from "./pages/admin/ContentFilter";
+import AddAdmin from "./pages/admin/AddAdmin";
 import AdminLayout from "./components/layouts/AdminLayout";
 import About from "./pages/About";
 import MyHub from "./pages/MyHub";
@@ -44,6 +45,7 @@ const AppContent = () => {
           <Route path="users" element={<UserManagementPage />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="content-filter" element={<ContentFilter />} />
+          <Route path="add-admin" element={<AddAdmin />} />
         </Route>
 
         {/* Public Routes */}
@@ -54,6 +56,7 @@ const AppContent = () => {
         <Route path="/college/:id" element={<CollegePage />} />
         <Route path="/my-hub" element={<MyHub />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/activity" element={<Activity />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} />

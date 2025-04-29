@@ -16,6 +16,7 @@ export default function Questions() {
   const [sortOrder, setSortOrder] = useState('newest');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [collegeName, setCollegeName] = useState("");
   const collegeId = searchParams.get("college");
   
   // Debounced search
@@ -42,8 +43,23 @@ export default function Questions() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    fetchQuestions();
-  }, [selectedCategory, sortOrder, collegeId, searchQuery]);
+    if (collegeId) {
+      fetchCollegeName();
+      fetchQuestions();
+    }
+  }, [collegeId]);
+
+  const fetchCollegeName = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/colleges/${collegeId}`, {
+        withCredentials: true
+      });
+      setCollegeName(response.data.name);
+    } catch (error) {
+      console.error('Error fetching college name:', error);
+      setCollegeName("");
+    }
+  };
 
   const fetchQuestions = async () => {
     try {
@@ -121,7 +137,9 @@ export default function Questions() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <h1 className="text-3xl font-bold mb-6">Questions</h1>
+              <h1 className="text-3xl font-bold mb-6">
+                {collegeName ? `${collegeName} / Questions` : 'Questions'}
+              </h1>
               
               {/* Search and Filters */}
               <div className="mb-6">
