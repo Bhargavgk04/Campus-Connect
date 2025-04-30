@@ -22,13 +22,17 @@ import AddAdmin from "./pages/admin/AddAdmin";
 import AdminLayout from "./components/layouts/AdminLayout";
 import About from "./pages/About";
 import MyHub from "./pages/MyHub";
+import ForgotPassword from "./components/Auth/ForgotPassword.jsx";
+import ResetPassword from "./components/Auth/ResetPassword.jsx";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
-  const isAuthRoute = location.pathname === "/auth";
+  const isAuthRoute = location.pathname === "/auth" || 
+                     location.pathname === "/forgot-password" || 
+                     location.pathname.startsWith("/reset-password");
 
   return (
     <>
@@ -36,6 +40,8 @@ const AppContent = () => {
       <Routes>
         {/* Auth Routes */}
         <Route path="/auth" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>

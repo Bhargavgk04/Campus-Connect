@@ -151,6 +151,12 @@ const userSchema = new mongoose.Schema({
   },
   suspensionEndsAt: {
     type: Date
+  },
+  resetPasswordToken: {
+    type: String
+  },
+  resetPasswordExpires: {
+    type: Date
   }
 }, {
   timestamps: true

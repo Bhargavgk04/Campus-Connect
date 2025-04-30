@@ -27,10 +27,10 @@ import profileRoutes from './routes/profile.js';
 import userRoutes from './routes/user.js';
 import reportRoutes from './routes/reportRoutes.js';
 
-config();
-
+// Load environment variables from .env file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
