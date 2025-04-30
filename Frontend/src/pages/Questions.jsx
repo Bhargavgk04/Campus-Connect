@@ -35,11 +35,15 @@ export default function Questions() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      debouncedSearch(searchQuery);
+      if (searchQuery.trim()) {
+        fetchQuestions();
+      } else {
+        fetchQuestions();
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, debouncedSearch]);
+  }, [searchQuery, selectedCategory, sortOrder]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -79,8 +83,8 @@ export default function Questions() {
         params.append('category', selectedCategory);
       }
       
-      if (searchQuery) {
-        params.append('search', searchQuery);
+      if (searchQuery.trim()) {
+        params.append('search', searchQuery.trim());
       }
       
       switch (sortOrder) {

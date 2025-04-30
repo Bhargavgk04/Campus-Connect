@@ -126,15 +126,11 @@ router.post('/add-admin', adminAuth, async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     // Create new admin user
     const newAdmin = new User({
       name,
       email,
-      password: hashedPassword,
+      password,
       role: 'admin',
       adminRole,
       isAdmin: true

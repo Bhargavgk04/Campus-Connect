@@ -41,7 +41,7 @@ router.get('/college/:collegeId', async (req, res) => {
     let questions;
     if (search) {
       // Use regex search for more flexible matching
-      const searchRegex = new RegExp(search, 'i');
+      const searchRegex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
       questions = await Question.find({
         $and: [
           { college: req.params.collegeId },
@@ -49,7 +49,7 @@ router.get('/college/:collegeId', async (req, res) => {
             $or: [
               { title: searchRegex },
               { content: searchRegex },
-              { tags: searchRegex }
+              { tags: { $in: [searchRegex] } }
             ]
           }
         ]
