@@ -108,8 +108,7 @@ const UserManagementPage = () => {
   };
 
   const handleViewProfile = (user) => {
-    setSelectedUser(user);
-    setIsViewProfileOpen(true);
+    navigate(`/profile/${user._id}`);
   };
 
   if (isLoading) {
@@ -233,22 +232,15 @@ const UserManagementPage = () => {
                     <Badge className={getRoleBadge(user.role)}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          View Details
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleViewProfile(user)}
-                          className="text-blue-600"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Profile
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewProfile(user)}
+                      className="text-blue-600"
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -283,22 +275,15 @@ const UserManagementPage = () => {
                     <Badge className={getRoleBadge(user.role)}>
                       {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="w-full">
-                          View Details
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleViewProfile(user)}
-                          className="text-blue-600"
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Profile
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleViewProfile(user)}
+                    >
+                      <Eye className="mr-2 h-4 w-4" />
+                      View Details
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -306,84 +291,6 @@ const UserManagementPage = () => {
           </div>
         )}
       </ScrollArea>
-
-      {/* View Profile Dialog */}
-      <Dialog open={isViewProfileOpen} onOpenChange={setIsViewProfileOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>User Profile</DialogTitle>
-            <DialogDescription>
-              Viewing profile of {selectedUser?.name}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left Column - Profile Info */}
-              <div className="md:col-span-1 space-y-6">
-                <div className="bg-card rounded-lg shadow-sm p-6">
-                  <div className="flex flex-col items-center">
-                    <div className="relative">
-                      <img
-                        src={selectedUser.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.name)}&background=random`}
-                        alt={selectedUser.name}
-                        className="w-32 h-32 rounded-full object-cover border-4 border-primary"
-                      />
-                    </div>
-                    <h1 className="text-2xl font-bold mt-4">{selectedUser.name}</h1>
-                    <p className="text-muted-foreground">{selectedUser.email}</p>
-                    <Badge className="mt-2">{selectedUser.role}</Badge>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Column - User Details */}
-              <div className="md:col-span-2 space-y-6">
-                <div className="bg-card rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-semibold mb-4">User Information</h2>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Role</p>
-                        <p className="font-medium">{selectedUser.role}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Joined</p>
-                        <p className="font-medium">
-                          {new Date(selectedUser.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      {selectedUser.department && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Department</p>
-                          <p className="font-medium">{selectedUser.department}</p>
-                        </div>
-                      )}
-                      {selectedUser.year && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Year</p>
-                          <p className="font-medium">{selectedUser.year}</p>
-                        </div>
-                      )}
-                      {selectedUser.rollNumber && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Roll Number</p>
-                          <p className="font-medium">{selectedUser.rollNumber}</p>
-                        </div>
-                      )}
-                      {selectedUser.cgpa && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">CGPA</p>
-                          <p className="font-medium">{selectedUser.cgpa}</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

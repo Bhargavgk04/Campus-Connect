@@ -55,9 +55,14 @@ export default function Profile() {
   });
   const [showCompleteProfilePrompt, setShowCompleteProfilePrompt] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [showEditAchievementsModal, setShowEditAchievementsModal] = useState(false);
 
   // Add timeout for API calls
   const API_TIMEOUT = 10000; // 10 seconds
+
+  // Check if the current user is viewing their own profile or is an admin
+  const isOwnProfile = !userId || userId === user?._id;
+  const isAdminViewing = user?.role === 'admin' && userId && userId !== user?._id;
 
   useEffect(() => {
     if (!user && !userId) {
@@ -428,8 +433,6 @@ export default function Profile() {
     setShowEditProfileModal(true);
   };
 
-  const isOwnProfile = !userId || userId === user?._id;
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 pt-32 pb-16">
@@ -694,15 +697,17 @@ export default function Profile() {
                         </div>
                         Skills
                       </h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsEditSkillsModalOpen(true)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                      >
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
+                      {isOwnProfile && !isAdminViewing && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsEditSkillsModalOpen(true)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      )}
                     </div>
                     {skills.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
@@ -735,15 +740,17 @@ export default function Profile() {
                         </div>
                         Achievements
                       </h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsEditSkillsModalOpen(true)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-                      >
-                        <Edit2 className="w-4 h-4 mr-2" />
-                        Edit
-                      </Button>
+                      {isOwnProfile && !isAdminViewing && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowEditAchievementsModal(true)}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      )}
                     </div>
                     {achievements.length > 0 ? (
                       <div className="space-y-3">

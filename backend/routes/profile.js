@@ -21,16 +21,33 @@ router.get('/:userId', auth, async (req, res) => {
 });
 
 // Get user profile
-router.get('/', auth, async (req, res) => {
+router.get('/:userId', async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const { userId } = req.params;
+    const user = await User.findById(userId)
+      .select('-password')
+      .populate('skills')
+      .populate('achievements')
+      .populate('education');
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+    // Allow access if:
+    // 1. User is viewing their own profile
+    // 2. User is an admin
+    // 3. The profile is public
+    if (req.user._id.toString() !== userId && 
+        req.user.role !== 'admin' && 
+        !user.isPublic) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
     res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Error fetching user profile' });
   }
 });
 
@@ -101,33 +118,83 @@ router.get('/additional-info', auth, async (req, res) => {
 });
 
 // Update user profile
-router.put('/update', auth, async (req, res) => {
+router.put('/:userId', async (req, res) => {
   try {
-    const { skills, achievements, ...otherFields } = req.body;
-    const updateData = { ...otherFields };
-
-    if (skills) {
-      updateData.skills = skills;
+    const { userId } = req.params;
+    
+    // Only allow users to update their own profile
+    if (req.user._id.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only update your own profile' });
     }
 
-    if (achievements) {
-      updateData.achievements = achievements;
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: req.body },
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.json({ success: true, user });
+    res.json(updatedUser);
   } catch (error) {
-    console.error('Error updating profile:', error);
-    res.status(500).json({ success: false, message: 'Error updating profile' });
+    console.error('Error updating user profile:', error);
+    res.status(500).json({ message: 'Error updating user profile' });
+  }
+});
+
+// Update skills
+router.put('/:userId/skills', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Only allow users to update their own skills
+    if (req.user._id.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only update your own skills' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { skills: req.body.skills } },
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Error updating user skills:', error);
+    res.status(500).json({ message: 'Error updating user skills' });
+  }
+});
+
+// Update achievements
+router.put('/:userId/achievements', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Only allow users to update their own achievements
+    if (req.user._id.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only update your own achievements' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { achievements: req.body.achievements } },
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error('Error updating user achievements:', error);
+    res.status(500).json({ message: 'Error updating user achievements' });
   }
 });
 
