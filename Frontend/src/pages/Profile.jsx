@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import EditProfileModal from "@/components/EditProfileModal";
 import EditSkillsModal from "@/components/EditSkillsModal";
+import EditAchievementsModal from "@/components/EditAchievementsModal";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import CompleteProfilePrompt from "@/components/CompleteProfilePrompt";
@@ -56,6 +57,8 @@ export default function Profile() {
   const [showCompleteProfilePrompt, setShowCompleteProfilePrompt] = useState(false);
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showEditAchievementsModal, setShowEditAchievementsModal] = useState(false);
+  const [isSkillsModalOpen, setIsSkillsModalOpen] = useState(false);
+  const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
 
   // Add timeout for API calls
   const API_TIMEOUT = 10000; // 10 seconds
@@ -73,22 +76,15 @@ export default function Profile() {
     const fetchUserData = async () => {
       setIsLoading(prev => ({ ...prev, userData: true }));
       try {
-        const url = userId 
-          ? `http://localhost:8080/api/profile/${userId}`
-          : 'http://localhost:8080/api/profile';
-        
-        const response = await axios.get(url, {
-          withCredentials: true
+        const response = await axios.get('http://localhost:8080/api/profile', {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         
-        // Ensure profile picture URL is complete
-        const userData = response.data;
-        if (userData.profilePicture && !userData.profilePicture.startsWith('http')) {
-          userData.profilePicture = `http://localhost:8080${userData.profilePicture}`;
-        }
-        
-        setUserData(userData);
-        const completionPercentage = calculateProfileCompletion(userData);
+        setUserData(response.data);
+        const completionPercentage = calculateProfileCompletion(response.data);
         if (completionPercentage < 100 && !userId) {
           setShowCompleteProfilePrompt(true);
         }
@@ -100,7 +96,10 @@ export default function Profile() {
           ...prev, 
           userData: error.response?.data?.message || 'Failed to load profile data'
         }));
-        toast.error('Failed to load profile data');
+        toast.error(error.response?.data?.message || 'Failed to load profile data');
+        if (error.response?.status === 401) {
+          navigate('/auth');
+        }
       } finally {
         setIsLoading(prev => ({ ...prev, userData: false }));
       }
@@ -109,13 +108,11 @@ export default function Profile() {
     const fetchStats = async () => {
       setIsLoading(prev => ({ ...prev, stats: true }));
       try {
-        const url = userId 
-          ? `http://localhost:8080/api/profile/${userId}/stats`
-          : 'http://localhost:8080/api/profile/stats';
-        
-        const response = await axios.get(url, {
+        const response = await axios.get('http://localhost:8080/api/profile/stats', {
           withCredentials: true,
-          timeout: API_TIMEOUT
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         setStats(response.data);
         setErrors(prev => ({ ...prev, stats: null }));
@@ -136,12 +133,11 @@ export default function Profile() {
     const fetchActivity = async () => {
       setIsLoading(prev => ({ ...prev, activity: true }));
       try {
-        const url = userId 
-          ? `http://localhost:8080/api/profile/${userId}/activity`
-          : 'http://localhost:8080/api/profile/activity';
-        
-        const response = await axios.get(url, {
-          withCredentials: true
+        const response = await axios.get('http://localhost:8080/api/profile/activity', {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
         setActivity(response.data);
         setErrors(prev => ({ ...prev, activity: null }));
@@ -164,17 +160,19 @@ export default function Profile() {
     const fetchAdditionalInfo = async () => {
       setIsLoading(prev => ({ ...prev, additionalInfo: true }));
       try {
-        const url = userId 
-          ? `http://localhost:8080/api/profile/${userId}/additional-info`
-          : 'http://localhost:8080/api/profile/additional-info';
-        
-        const response = await axios.get(url, {
-          withCredentials: true
+        const response = await axios.get('http://localhost:8080/api/profile/additional-info', {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
-        setSkills(response.data.skills || []);
-        setEducation(response.data.education || []);
-        setAchievements(response.data.achievements || []);
-        setSocialLinks(response.data.socialLinks || {
+
+        const { skills, achievements, education, socialLinks } = response.data;
+        
+        setSkills(skills || []);
+        setEducation(education || []);
+        setAchievements(achievements || []);
+        setSocialLinks(socialLinks || {
           github: "",
           twitter: "",
           linkedin: ""
@@ -186,6 +184,7 @@ export default function Profile() {
           ...prev, 
           additionalInfo: error.response?.data?.message || 'Failed to load additional information'
         }));
+        toast.error(error.response?.data?.message || 'Failed to load additional information');
       } finally {
         setIsLoading(prev => ({ ...prev, additionalInfo: false }));
       }
@@ -431,6 +430,36 @@ export default function Profile() {
 
   const handleEditProfile = () => {
     setShowEditProfileModal(true);
+  };
+
+  const handleUpdateUser = (updatedData) => {
+    // Immediately update the local state
+    setUserData(prev => ({
+      ...prev,
+      ...updatedData
+    }));
+
+    // Update skills if they are included in the update
+    if (updatedData.skills) {
+      setSkills(updatedData.skills);
+    }
+
+    // Update achievements if they are included in the update
+    if (updatedData.achievements) {
+      setAchievements(updatedData.achievements);
+    }
+
+    // Update social links if they are included in the update
+    if (updatedData.socialLinks) {
+      setSocialLinks(updatedData.socialLinks);
+    }
+
+    // Recalculate profile completion
+    const newProfileCompletion = calculateProfileCompletion({
+      ...userData,
+      ...updatedData
+    });
+    setProfileCompletion(newProfileCompletion);
   };
 
   return (
@@ -701,7 +730,7 @@ export default function Profile() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setIsEditSkillsModalOpen(true)}
+                          onClick={() => setIsSkillsModalOpen(true)}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                         >
                           <Edit2 className="w-4 h-4 mr-2" />
@@ -744,7 +773,7 @@ export default function Profile() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setShowEditAchievementsModal(true)}
+                          onClick={() => setIsAchievementsModalOpen(true)}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
                         >
                           <Edit2 className="w-4 h-4 mr-2" />
@@ -800,10 +829,17 @@ export default function Profile() {
       />
 
       <EditSkillsModal
-        isOpen={isEditSkillsModalOpen}
-        onClose={() => setIsEditSkillsModalOpen(false)}
+        isOpen={isSkillsModalOpen}
+        onClose={() => setIsSkillsModalOpen(false)}
         userData={userData}
-        onUpdate={handleProfileUpdate}
+        onUpdate={handleUpdateUser}
+      />
+
+      <EditAchievementsModal
+        isOpen={isAchievementsModalOpen}
+        onClose={() => setIsAchievementsModalOpen(false)}
+        userData={userData}
+        onUpdate={handleUpdateUser}
       />
     </div>
   );
