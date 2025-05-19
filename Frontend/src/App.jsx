@@ -35,11 +35,12 @@ const AppContent = () => {
   const isAuthRoute = location.pathname === "/auth" || 
                      location.pathname === "/forgot-password" || 
                      location.pathname.startsWith("/reset-password");
+  const isLandingPage = location.pathname === "/";
 
   return (
     <AuthProvider>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        {!isAdminRoute && <Navbar />}
         <main className="flex-grow">
           <Routes>
             {/* Auth Routes */}
@@ -72,7 +73,7 @@ const AppContent = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
-        <Footer />
+        {!isAdminRoute && isLandingPage && <Footer />}
         <Toaster position="top-right" />
       </div>
     </AuthProvider>
