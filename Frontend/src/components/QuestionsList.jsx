@@ -4,8 +4,9 @@ import { MessageSquare, ThumbsUp, Eye, Clock, Plus, Search } from 'lucide-react'
 import axios from 'axios';
 import { toast } from 'sonner';
 import io from 'socket.io-client';
+import { SOCKET_IO_URL, getApiUrl } from '@/config/api';
 
-const socket = io('http://localhost:8080', {
+const socket = io(SOCKET_IO_URL, {
   withCredentials: true
 });
 
@@ -57,7 +58,7 @@ export default function QuestionsList({ collegeId, category }) {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(`http://localhost:8080/api/questions/college/${collegeId}`, {
+      const response = await axios.get(getApiUrl(`questions/college/${collegeId}`), {
         params: { 
           category,
           sort: sortBy,
@@ -77,7 +78,7 @@ export default function QuestionsList({ collegeId, category }) {
 
   const handleLike = async (questionId) => {
     try {
-      await axios.post(`http://localhost:8080/api/questions/${questionId}/like`, {}, {
+      await axios.post(getApiUrl(`questions/${questionId}/like`), {}, {
         withCredentials: true
       });
     } catch (error) {

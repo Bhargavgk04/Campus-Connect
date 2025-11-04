@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getApiUrl } from '@/config/api';
 
 export default function EditProfileModal({ isOpen, onClose, userData, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -68,7 +69,7 @@ export default function EditProfileModal({ isOpen, onClose, userData, onUpdate }
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:8080/api/profile/update', {
+      const response = await fetch(getApiUrl('profile/update'), {
         method: 'PUT',
         credentials: 'include',
         headers: {

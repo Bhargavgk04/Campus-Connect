@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReportDialog } from "./ReportDialog";
+import { getApiUrl } from "@/config/api";
 
 export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }) {
   const { user } = useAuth();
@@ -34,7 +35,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
     try {
       setIsLiking(true);
       const response = await axios.post(
-        `http://localhost:8080/api/answers/${answer._id}/like`,
+        getApiUrl(`answers/${answer._id}/like`),
         {},
         { withCredentials: true }
       );
@@ -54,7 +55,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
     try {
       setIsAccepting(true);
       await axios.post(
-        `http://localhost:8080/api/answers/${answer._id}/accept`,
+        getApiUrl(`answers/${answer._id}/accept`),
         {},
         { withCredentials: true }
       );
@@ -77,7 +78,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
 
     try {
       await axios.put(
-        `http://localhost:8080/api/answers/${answer._id}`,
+        getApiUrl(`answers/${answer._id}`),
         { content: editedContent },
         { withCredentials: true }
       );
@@ -98,7 +99,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
     try {
       setIsDeleting(true);
       await axios.delete(
-        `http://localhost:8080/api/answers/${answer._id}`,
+        getApiUrl(`answers/${answer._id}`),
         { withCredentials: true }
       );
       toast.success("Answer deleted successfully");
@@ -128,7 +129,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
     try {
       setIsSubmittingComment(true);
       await axios.post(
-        `http://localhost:8080/api/answers/${answer._id}/comments`,
+        getApiUrl(`answers/${answer._id}/comments`),
         { content: newComment },
         { withCredentials: true }
       );
@@ -146,7 +147,7 @@ export default function AnswerCard({ answer, isQuestionAuthor, onAnswerUpdated }
 
   const handleReport = async (data) => {
     try {
-      await axios.post('http://localhost:8080/api/reports', {
+      await axios.post(getApiUrl('reports'), {
         reportedContent: answer._id,
         contentType: 'answer',
         category: data.category,

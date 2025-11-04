@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
+import { getApiUrl } from "@/config/api";
 
 export default function AnswerForm({ questionId, onAnswerAdded }) {
   const [content, setContent] = useState("");
@@ -14,7 +15,7 @@ export default function AnswerForm({ questionId, onAnswerAdded }) {
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/questions/${questionId}/answers`,
+        getApiUrl(`questions/${questionId}/answers`),
         { content },
         { withCredentials: true }
       );

@@ -4,8 +4,9 @@ import { ThumbsUp, MessageSquare, Check, MoreVertical } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import io from 'socket.io-client';
+import { SOCKET_IO_URL, getApiUrl } from '@/config/api';
 
-const socket = io('http://localhost:8080', {
+const socket = io(SOCKET_IO_URL, {
   withCredentials: true
 });
 
@@ -82,7 +83,7 @@ export default function QuestionDetail() {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(`http://localhost:8080/api/questions/${id}`, {
+      const response = await axios.get(getApiUrl(`questions/${id}`), {
         withCredentials: true
       });
       
@@ -101,7 +102,7 @@ export default function QuestionDetail() {
 
     try {
       setIsSubmitting(true);
-      await axios.post('http://localhost:8080/api/answers', {
+      await axios.post(getApiUrl('answers'), {
         content: newAnswer,
         questionId: id
       }, {
@@ -120,7 +121,7 @@ export default function QuestionDetail() {
 
   const handleLikeAnswer = async (answerId) => {
     try {
-      await axios.post(`http://localhost:8080/api/answers/${answerId}/like`, {}, {
+      await axios.post(getApiUrl(`answers/${answerId}/like`), {}, {
         withCredentials: true
       });
     } catch (error) {
@@ -131,7 +132,7 @@ export default function QuestionDetail() {
 
   const handleAcceptAnswer = async (answerId) => {
     try {
-      await axios.post(`http://localhost:8080/api/answers/${answerId}/accept`, {}, {
+      await axios.post(getApiUrl(`answers/${answerId}/accept`), {}, {
         withCredentials: true
       });
       toast.success('Answer accepted');
@@ -145,7 +146,7 @@ export default function QuestionDetail() {
     if (!newComment.trim()) return;
 
     try {
-      await axios.post(`http://localhost:8080/api/answers/${answerId}/comments`, {
+      await axios.post(getApiUrl(`answers/${answerId}/comments`), {
         content: newComment
       }, {
         withCredentials: true

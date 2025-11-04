@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Users, MessageSquare, School } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { getApiUrl } from "@/config/api";
 
 export default function MyHub() {
   const [enrolledColleges, setEnrolledColleges] = useState([]);
@@ -24,7 +25,7 @@ export default function MyHub() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      const response = await axios.get('http://localhost:8080/api/enrollment/my-colleges', {
+      const response = await axios.get(getApiUrl('enrollment/my-colleges'), {
         withCredentials: true,
         signal: controller.signal
       });

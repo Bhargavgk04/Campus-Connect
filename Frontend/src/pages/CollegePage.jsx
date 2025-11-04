@@ -5,6 +5,7 @@ import axios from "axios";
 import { School, Check } from "lucide-react";
 import { toast } from "sonner";
 import BackButton from "@/components/BackButton";
+import { getApiUrl, API_URL } from "@/config/api";
 
 export default function CollegePage() {
   const { id } = useParams();
@@ -26,13 +27,13 @@ export default function CollegePage() {
 
   const fetchCollegeDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/colleges/${id}`);
+      const response = await axios.get(getApiUrl(`colleges/${id}`));
       const collegeData = response.data;
       setCollege(collegeData);
       
       // Ensure the image URL is properly formatted
       if (collegeData.image && !collegeData.image.startsWith('http')) {
-        setImageUrl(`http://localhost:8080${collegeData.image}`);
+        setImageUrl(`${API_URL}${collegeData.image}`);
       } else {
         setImageUrl(collegeData.image);
       }
@@ -46,7 +47,7 @@ export default function CollegePage() {
 
   const checkEnrollmentStatus = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/enrollment/check/${id}`, {
+      const response = await axios.get(getApiUrl(`enrollment/check/${id}`), {
         withCredentials: true
       });
       setIsEnrolled(response.data.isEnrolled);
@@ -62,13 +63,13 @@ export default function CollegePage() {
       setIsEnrolling(true);
       
       if (isEnrolled) {
-        await axios.delete(`http://localhost:8080/api/enrollment/unenroll/${id}`, {
+        await axios.delete(getApiUrl(`enrollment/unenroll/${id}`), {
           withCredentials: true,
           timeout: 5000 // 5 second timeout
         });
         toast.success("Successfully unenrolled from college");
       } else {
-        await axios.post(`http://localhost:8080/api/enrollment/enroll/${id}`, {}, {
+        await axios.post(getApiUrl(`enrollment/enroll/${id}`), {}, {
           withCredentials: true,
           timeout: 5000 // 5 second timeout
         });

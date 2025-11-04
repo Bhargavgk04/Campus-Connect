@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { getApiUrl } from "@/config/api";
 
 const Reports = () => {
   const { user } = useAuth();
@@ -51,7 +52,7 @@ const Reports = () => {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/reports', {
+      const response = await axios.get(getApiUrl('reports'), {
         params: {
           type: filterType === 'all' ? undefined : filterType,
           status: filterStatus === 'all' ? undefined : filterStatus,
@@ -81,7 +82,7 @@ const Reports = () => {
 
   const handleResolve = async (data) => {
     try {
-      await axios.put(`http://localhost:8080/api/reports/${selectedReport._id}/resolve`, {
+      await axios.put(getApiUrl(`reports/${selectedReport._id}/resolve`), {
         resolution: data.resolution
       }, { withCredentials: true });
       toast.success('Report resolved successfully');
@@ -109,7 +110,7 @@ const Reports = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/api/reports/${reportToDelete}`, {
+      await axios.delete(getApiUrl(`reports/${reportToDelete}`), {
         withCredentials: true
       });
       toast.success('Report deleted successfully');

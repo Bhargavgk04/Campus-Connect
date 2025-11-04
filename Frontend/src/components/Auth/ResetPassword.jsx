@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
+import { getApiUrl } from '@/config/api';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -20,7 +21,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/auth/reset-password/${token}`, { password });
+      const response = await axios.post(getApiUrl(`auth/reset-password/${token}`), { password });
       setMessage(response.data.message);
       setError('');
       setTimeout(() => {

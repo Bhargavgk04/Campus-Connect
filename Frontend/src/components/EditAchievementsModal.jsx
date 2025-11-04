@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
+import { getApiUrl } from "@/config/api";
 
 export default function EditAchievementsModal({ isOpen, onClose, userData, onUpdate }) {
   const [achievements, setAchievements] = useState([]);
@@ -46,7 +47,7 @@ export default function EditAchievementsModal({ isOpen, onClose, userData, onUpd
     try {
       setIsLoading(true);
       const response = await axios.put(
-        'http://localhost:8080/api/profile/achievements',
+        getApiUrl('profile/achievements'),
         { achievements },
         { withCredentials: true }
       );

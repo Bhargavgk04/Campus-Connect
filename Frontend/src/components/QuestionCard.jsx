@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { ReportDialog } from "./ReportDialog";
 import ViewProfileDialog from "./ViewProfileDialog";
+import { getApiUrl } from "@/config/api";
 
 export default function QuestionCard({ question, isDetailed = false }) {
   const { user } = useAuth();
@@ -38,7 +39,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
         
         // Increment view count
         const response = await axios.post(
-          `http://localhost:8080/api/questions/${question._id}/view`,
+          getApiUrl(`questions/${question._id}/view`),
           {},
           { withCredentials: true }
         );
@@ -62,7 +63,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
     try {
       setIsLiking(true);
       const response = await axios.post(
-        `http://localhost:8080/api/questions/${question._id}/like`,
+        getApiUrl(`questions/${question._id}/like`),
         {},
         { withCredentials: true }
       );
@@ -78,7 +79,7 @@ export default function QuestionCard({ question, isDetailed = false }) {
 
   const handleReport = async (data) => {
     try {
-      await axios.post('http://localhost:8080/api/reports', {
+      await axios.post(getApiUrl('reports'), {
         reportedContent: question._id,
         contentType: 'question',
         category: data.category,

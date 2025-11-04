@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
+import { getApiUrl } from "@/config/api";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -31,7 +32,7 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/users', {
+      const response = await fetch(getApiUrl('users'), {
         credentials: 'include'
       });
       

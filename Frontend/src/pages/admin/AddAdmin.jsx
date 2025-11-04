@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getApiUrl } from "@/config/api";
 
 export default function AddAdmin() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function AddAdmin() {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://localhost:8080/api/admin/add-admin',
+        getApiUrl('admin/add-admin'),
         {
           name: formData.name,
           email: formData.email,

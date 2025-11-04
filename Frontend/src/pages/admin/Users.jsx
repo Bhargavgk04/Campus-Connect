@@ -47,6 +47,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { API_URL, getApiUrl } from "@/config/api";
 
 const UserManagementPage = () => {
   const [viewMode, setViewMode] = useState("list");
@@ -56,20 +57,17 @@ const UserManagementPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Add server URL constant
-  const SERVER_URL = "http://localhost:8080";
-
   // Helper function to get profile picture URL
   const getProfilePictureUrl = (profilePicture) => {
     if (!profilePicture) return null;
     if (profilePicture.startsWith('http')) return profilePicture;
-    return `${SERVER_URL}/${profilePicture}`;
+    return `${API_URL}/${profilePicture}`;
   };
 
   // Fetch users
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin", "users"],
-    queryFn: () => fetch("http://localhost:8080/api/admin/users", {
+    queryFn: () => fetch(getApiUrl("admin/users"), {
       credentials: 'include'
     }).then((res) => res.json()),
   });
@@ -77,7 +75,7 @@ const UserManagementPage = () => {
   // User action mutation
   const userActionMutation = useMutation({
     mutationFn: ({ userId, action }) =>
-      fetch(`http://localhost:8080/api/users/${userId}/${action}`, {
+      fetch(getApiUrl(`users/${userId}/${action}`), {
         method: "POST",
         credentials: 'include'
       }),

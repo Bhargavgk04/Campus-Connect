@@ -19,9 +19,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
+import { getApiUrl } from "@/config/api";
 
 const fetchDashboardData = async () => {
-  const response = await fetch("http://localhost:8080/api/admin/dashboard", {
+  const response = await fetch(getApiUrl("admin/dashboard"), {
     credentials: "include",
   });
   if (!response.ok) {

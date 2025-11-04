@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
+import { getApiUrl } from "@/config/api";
 
 const categories = [
   { 
@@ -89,7 +90,7 @@ export default function QuestionForm({ collegeId, onQuestionAdded }) {
     setIsSubmitting(true);
     
     try {
-      const response = await axios.post('http://localhost:8080/api/questions', {
+      const response = await axios.post(getApiUrl('questions'), {
         title: formData.title,
         content: formData.content,
         category: formData.category,

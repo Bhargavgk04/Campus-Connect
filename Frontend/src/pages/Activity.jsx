@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import BackButton from "@/components/BackButton";
+import { getApiUrl } from "@/config/api";
 
 export default function Activity() {
   const [activeTab, setActiveTab] = useState("questions");
@@ -28,7 +29,7 @@ export default function Activity() {
       
       try {
         setIsLoading(true);
-        const response = await axios.get('http://localhost:8080/api/user/activity', {
+        const response = await axios.get(getApiUrl('user/activity'), {
           withCredentials: true
         });
         setUserActivity(response.data);

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { getApiUrl } from "@/config/api";
 
 /**
  * @typedef {Object} FormData
@@ -72,7 +73,7 @@ function AddCollegeDialog({ open, onOpenChange, onSuccess }) {
         }
       });
 
-      await axios.post('http://localhost:8080/api/colleges', data, {
+      await axios.post(getApiUrl('colleges'), data, {
         withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'

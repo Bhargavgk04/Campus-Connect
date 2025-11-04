@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { getApiUrl } from '@/config/api';
 
 const MyHub = () => {
   const [enrolledColleges, setEnrolledColleges] = useState([]);
@@ -16,7 +17,7 @@ const MyHub = () => {
   const fetchEnrolledColleges = async () => {
     try {
       console.log('Fetching enrolled colleges...');
-      const response = await axios.get('http://localhost:8080/api/enrollment/my-colleges', {
+      const response = await axios.get(getApiUrl('enrollment/my-colleges'), {
         withCredentials: true
       });
       console.log('Enrolled colleges response:', response.data);
@@ -32,7 +33,7 @@ const MyHub = () => {
   const handleUnenroll = async (collegeId) => {
     try {
       console.log('Attempting to unenroll from college:', collegeId);
-      await axios.delete(`http://localhost:8080/api/enrollment/unenroll/${collegeId}`, {
+      await axios.delete(getApiUrl(`enrollment/unenroll/${collegeId}`), {
         withCredentials: true
       });
       toast.success('Successfully unenrolled from college');

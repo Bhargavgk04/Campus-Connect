@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { getApiUrl } from '@/config/api';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(getApiUrl('auth/login'), {
         method: 'POST',
         credentials: 'include',
         headers: {

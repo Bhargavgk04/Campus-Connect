@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import CompleteProfilePrompt from "@/components/CompleteProfilePrompt";
 import { Badge } from "@/components/ui/badge";
 import BackButton from "@/components/BackButton";
+import { getApiUrl, API_URL } from "@/config/api";
 
 export default function Profile() {
   const { user, updateProfile, logout } = useAuth();
@@ -77,7 +78,7 @@ export default function Profile() {
     const fetchUserData = async () => {
       setIsLoading(prev => ({ ...prev, userData: true }));
       try {
-        const endpoint = userId ? `http://localhost:8080/api/profile/${userId}` : 'http://localhost:8080/api/profile';
+        const endpoint = userId ? getApiUrl(`profile/${userId}`) : getApiUrl('profile');
         const response = await axios.get(endpoint, {
           withCredentials: true,
           headers: {
@@ -110,7 +111,7 @@ export default function Profile() {
     const fetchStats = async () => {
       setIsLoading(prev => ({ ...prev, stats: true }));
       try {
-        const response = await axios.get('http://localhost:8080/api/profile/stats', {
+        const response = await axios.get(getApiUrl('profile/stats'), {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json'
@@ -135,7 +136,7 @@ export default function Profile() {
     const fetchActivity = async () => {
       setIsLoading(prev => ({ ...prev, activity: true }));
       try {
-        const response = await axios.get('http://localhost:8080/api/profile/activity', {
+        const response = await axios.get(getApiUrl('profile/activity'), {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json'
@@ -162,7 +163,7 @@ export default function Profile() {
     const fetchAdditionalInfo = async () => {
       setIsLoading(prev => ({ ...prev, additionalInfo: true }));
       try {
-        const endpoint = userId ? `http://localhost:8080/api/profile/${userId}/additional-info` : 'http://localhost:8080/api/profile/additional-info';
+        const endpoint = userId ? getApiUrl(`profile/${userId}/additional-info`) : getApiUrl('profile/additional-info');
         const response = await axios.get(endpoint, {
           withCredentials: true,
           headers: {
@@ -203,7 +204,7 @@ export default function Profile() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-      fetch('http://localhost:8080/api/enrollment/my-colleges', {
+      fetch(getApiUrl('enrollment/my-colleges'), {
         credentials: 'include',
         signal: controller.signal
       })
@@ -284,7 +285,7 @@ export default function Profile() {
       formData.append('profilePicture', file);
 
       const response = await axios.post(
-        'http://localhost:8080/api/profile/upload-picture',
+        getApiUrl('profile/upload-picture'),
         formData,
         {
           headers: {

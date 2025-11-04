@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { School, Users, MessageSquare, CheckCircle2, UserPlus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import { getApiUrl, API_URL } from "@/config/api";
 
 export default function CollegeCard({ college, minimal = false }) {
   const [imageError, setImageError] = useState(false);
@@ -16,7 +17,7 @@ export default function CollegeCard({ college, minimal = false }) {
   useEffect(() => {
     // Ensure the image URL is properly formatted
     if (college.image && !college.image.startsWith('http')) {
-      setImageUrl(`http://localhost:8080${college.image}`);
+      setImageUrl(`${API_URL}${college.image}`);
     }
   }, [college.image]);
 
@@ -29,7 +30,7 @@ export default function CollegeCard({ college, minimal = false }) {
     setIsLoading(true);
     try {
       const endpoint = isEnrolled ? 'unjoin' : 'join';
-      const response = await axios.post(`http://localhost:8080/api/colleges/${college._id}/${endpoint}`, {}, {
+      const response = await axios.post(getApiUrl(`colleges/${college._id}/${endpoint}`), {}, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }

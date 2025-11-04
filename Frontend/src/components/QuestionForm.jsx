@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import axios from "axios";
+import { getApiUrl } from "@/config/api";
 
 export default function QuestionForm() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function QuestionForm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/questions",
+        getApiUrl("questions"),
         {
           ...formData,
           tags: formData.tags.split(",").map(tag => tag.trim())

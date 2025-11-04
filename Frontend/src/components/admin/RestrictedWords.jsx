@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { getApiUrl } from "@/config/api";
 import {
   Dialog,
   DialogContent,
@@ -42,7 +43,7 @@ const RestrictedWords = () => {
 
   const fetchWords = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/admin/restricted-words', {
+      const response = await axios.get(getApiUrl('admin/restricted-words'), {
         withCredentials: true
       });
       setWords(response.data);
@@ -57,7 +58,7 @@ const RestrictedWords = () => {
   const handleAddWord = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8080/api/admin/restricted-words', newWord, {
+      await axios.post(getApiUrl('admin/restricted-words'), newWord, {
         withCredentials: true
       });
       toast.success('Restricted word added successfully');
@@ -72,7 +73,7 @@ const RestrictedWords = () => {
 
   const handleDeleteWord = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/admin/restricted-words/${id}`, {
+      await axios.delete(getApiUrl(`admin/restricted-words/${id}`), {
         withCredentials: true
       });
       toast.success('Restricted word deleted successfully');

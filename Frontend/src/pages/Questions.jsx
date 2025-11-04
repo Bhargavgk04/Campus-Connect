@@ -10,6 +10,7 @@ import { useContentModeration } from "@/hooks/useContentModeration";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import BackButton from "@/components/BackButton";
+import { getApiUrl } from "@/config/api";
 
 export default function Questions() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -64,7 +65,7 @@ export default function Questions() {
 
   const fetchCollegeName = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/colleges/${collegeId}`, {
+      const response = await axios.get(getApiUrl(`colleges/${collegeId}`), {
         withCredentials: true
       });
       setCollegeName(response.data.name);
@@ -85,7 +86,7 @@ export default function Questions() {
         return;
       }
 
-      let url = `http://localhost:8080/api/questions/college/${collegeId}`;
+      let url = getApiUrl(`questions/college/${collegeId}`);
       const params = new URLSearchParams();
       
       if (selectedCategory) {
@@ -142,7 +143,7 @@ export default function Questions() {
     await moderateContent(description, async () => {
       try {
         const response = await axios.post(
-          "http://localhost:8080/api/questions",
+          getApiUrl("questions"),
           { title, content: description, category, college: collegeId },
           { withCredentials: true }
         );

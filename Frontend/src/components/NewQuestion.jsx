@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { getApiUrl } from '@/config/api';
 
 export default function NewQuestion({ collegeId }) {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function NewQuestion({ collegeId }) {
 
     try {
       setIsSubmitting(true);
-      const response = await axios.post('http://localhost:8080/api/questions', {
+      const response = await axios.post(getApiUrl('questions'), {
         title: formData.title,
         content: formData.content,
         college: collegeId,

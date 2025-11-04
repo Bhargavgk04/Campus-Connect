@@ -8,6 +8,7 @@ import QuestionCard from "@/components/QuestionCard";
 import AnswerCard from "@/components/AnswerCard";
 import Navbar from "@/components/Navbar";
 import BackButton from "@/components/BackButton";
+import { getApiUrl } from "@/config/api";
 
 export default function QuestionDetail() {
   const { id } = useParams();
@@ -56,13 +57,13 @@ export default function QuestionDetail() {
       setError(null);
 
       // Fetch question details
-      const questionResponse = await axios.get(`http://localhost:8080/api/questions/${id}`, {
+      const questionResponse = await axios.get(getApiUrl(`questions/${id}`), {
         withCredentials: true
       });
       setQuestion(questionResponse.data);
 
       // Fetch answers
-      const answersResponse = await axios.get(`http://localhost:8080/api/answers/question/${id}`, {
+      const answersResponse = await axios.get(getApiUrl(`answers/question/${id}`), {
         withCredentials: true
       });
       setAnswers(answersResponse.data);
@@ -91,7 +92,7 @@ export default function QuestionDetail() {
     setSubmitting(true);
     
     try {
-      const response = await axios.post('http://localhost:8080/api/answers', {
+      const response = await axios.post(getApiUrl('answers'), {
         content: newAnswer,
         questionId: id
       }, {

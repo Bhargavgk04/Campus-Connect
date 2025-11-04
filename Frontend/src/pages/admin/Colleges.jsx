@@ -6,6 +6,7 @@ import AddCollegeDialog from "@/components/admin/AddCollegeDialog";
 import EditCollegeDialog from "@/components/admin/EditCollegeDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getApiUrl } from "@/config/api";
 import {
   Table,
   TableBody,
@@ -29,7 +30,7 @@ export default function AdminColleges() {
 
   const fetchColleges = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/colleges");
+      const response = await axios.get(getApiUrl("colleges"));
       setColleges(response.data);
     } catch (error) {
       toast.error("Failed to fetch colleges");
@@ -42,7 +43,7 @@ export default function AdminColleges() {
     if (!window.confirm("Are you sure you want to delete this college?")) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/colleges/${id}`, {
+      await axios.delete(getApiUrl(`colleges/${id}`), {
         withCredentials: true,
       });
       toast.success("College deleted successfully");

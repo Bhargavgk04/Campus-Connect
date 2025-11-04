@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PropTypes from 'prop-types';
+import { getApiUrl } from '@/config/api';
 
 /**
  * @typedef {Object} User
@@ -66,7 +67,7 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/auth/status', {
+      const response = await axios.get(getApiUrl('auth/status'), {
         withCredentials: true
       });
       if (response.data.authenticated) {
@@ -87,7 +88,7 @@ export function AuthProvider({ children }) {
    */
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', {
+      const response = await axios.post(getApiUrl('auth/login'), {
         email,
         password
       }, {
@@ -103,7 +104,7 @@ export function AuthProvider({ children }) {
       
       // For regular users, check enrollment status and navigate accordingly
       try {
-        const enrollmentResponse = await axios.get('http://localhost:8080/api/enrollment/my-colleges', {
+        const enrollmentResponse = await axios.get(getApiUrl('enrollment/my-colleges'), {
           withCredentials: true
         });
         
@@ -132,7 +133,7 @@ export function AuthProvider({ children }) {
    */
   const register = async (formData) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/register', formData, {
+      const response = await axios.post(getApiUrl('register'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -153,7 +154,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await axios.post('http://localhost:8080/api/logout', {}, {
+      await axios.post(getApiUrl('logout'), {}, {
         withCredentials: true
       });
       setUser(null);
@@ -168,7 +169,7 @@ export function AuthProvider({ children }) {
    */
   const updateProfile = async (formData) => {
     try {
-      const response = await axios.put('http://localhost:8080/api/profile/update', formData, {
+      const response = await axios.put(getApiUrl('profile/update'), formData, {
         withCredentials: true
       });
       

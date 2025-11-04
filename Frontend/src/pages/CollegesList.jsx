@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 import BackButton from "@/components/BackButton";
+import { getApiUrl } from "@/config/api";
 
 export default function CollegesList() {
   const [colleges, setColleges] = useState([]);
@@ -21,7 +22,7 @@ export default function CollegesList() {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const response = await axios.get("http://localhost:8080/api/colleges", { headers });
+      const response = await axios.get(getApiUrl("colleges"), { headers });
       setColleges(response.data);
     } catch (error) {
       toast.error("Failed to fetch colleges");
@@ -43,7 +44,7 @@ export default function CollegesList() {
       const token = localStorage.getItem('token');
 
       await axios.post(
-        `http://localhost:8080/api/colleges/${collegeId}/${endpoint}`,
+        getApiUrl(`colleges/${collegeId}/${endpoint}`),
         {},
         {
           headers: { Authorization: `Bearer ${token}` }

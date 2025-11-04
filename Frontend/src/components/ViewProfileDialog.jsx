@@ -9,6 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import { toast } from "sonner";
+import { getApiUrl } from "@/config/api";
 
 export default function ViewProfileDialog({ isOpen, onClose, userId }) {
   const [userData, setUserData] = useState(null);
@@ -23,7 +24,7 @@ export default function ViewProfileDialog({ isOpen, onClose, userId }) {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/profile/${userId}`, {
+      const response = await axios.get(getApiUrl(`profile/${userId}`), {
         withCredentials: true
       });
       setUserData(response.data);

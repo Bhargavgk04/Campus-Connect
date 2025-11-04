@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Hero from "../components/Hero";
 import CollegeCard from "../components/CollegeCard";
+import { getApiUrl } from "@/config/api";
 
 export default function Index() {
   const [topColleges, setTopColleges] = useState([]);
@@ -16,7 +17,7 @@ export default function Index() {
 
   const fetchColleges = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/colleges");
+      const response = await axios.get(getApiUrl("colleges"));
       // Get top 3 colleges by active users
       const sortedColleges = response.data.sort((a, b) => (b.activeUsers || 0) - (a.activeUsers || 0));
       setTopColleges(sortedColleges.slice(0, 3));

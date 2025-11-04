@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import axios from "axios";
+import { getApiUrl } from "@/config/api";
 
 export default function EditSkillsModal({ isOpen, onClose, userData, onUpdate }) {
   const [skills, setSkills] = useState([]);
@@ -45,7 +46,7 @@ export default function EditSkillsModal({ isOpen, onClose, userData, onUpdate })
     try {
       setIsLoading(true);
       const response = await axios.put(
-        'http://localhost:8080/api/profile/skills',
+        getApiUrl('profile/skills'),
         { skills },
         { withCredentials: true }
       );
