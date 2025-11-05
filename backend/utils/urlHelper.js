@@ -42,13 +42,26 @@ export const getFrontendUrl = () => {
 export const normalizeUrl = (path) => {
   if (!path) return '';
   
-  // If it's already a full URL, return as is
+  const baseUrl = getBaseUrl();
+
+  // If it's already a full URL, rewrite if it points to localhost
   if (path.startsWith('http://') || path.startsWith('https://')) {
+    try {
+      const url = new URL(path);
+      // Rewrite any localhost/127.* host to current base URL host
+      if (url.hostname === 'localhost' || url.hostname.startsWith('127.')) {
+        const newBase = new URL(baseUrl);
+        url.protocol = newBase.protocol;
+        url.host = newBase.host;
+        return url.toString();
+      }
+    } catch (_) {
+      // fall through to return as-is
+    }
     return path;
   }
   
   // Otherwise, prepend the base URL
-  const baseUrl = getBaseUrl();
   return `${baseUrl}${path}`;
 };
 
