@@ -38,8 +38,8 @@ After you get your Netlify URL (e.g., `https://your-site.netlify.app`):
 1. Go to **Render Dashboard** → Your backend service
 2. Go to **Environment** tab
 3. Update:
-   - `FRONTEND_URL` = `https://your-site.netlify.app`
-   - `CORS_ORIGINS` = `https://your-site.netlify.app` (optional)
+   - `FRONTEND_URL` = `https://campusconnect-io.netlify.app`
+   - `CORS_ORIGINS` = `https://campusconnect-io.netlify.app` (optional)
 4. **Save** - Render will redeploy automatically
 
 ## Step 4: Verify
