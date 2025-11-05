@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from '../ui/badge';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
+import { getApiUrl } from '@/config/api';
 
 const ReportsList = () => {
   const [reports, setReports] = useState([]);
@@ -19,7 +20,7 @@ const ReportsList = () => {
 
   const fetchReports = async () => {
     try {
-      const response = await axios.get('/api/reports');
+      const response = await axios.get(getApiUrl('reports'), { withCredentials: true });
       setReports(response.data);
     } catch (error) {
       toast.error('Failed to fetch reports');
@@ -28,9 +29,9 @@ const ReportsList = () => {
 
   const handleResolve = async (data) => {
     try {
-      await axios.put(`/api/reports/${selectedReport._id}/resolve`, {
+      await axios.put(getApiUrl(`reports/${selectedReport._id}/resolve`), {
         resolution: data.resolution
-      });
+      }, { withCredentials: true });
       toast.success('Report resolved successfully');
       fetchReports();
     } catch (error) {

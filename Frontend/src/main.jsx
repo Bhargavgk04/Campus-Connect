@@ -9,6 +9,11 @@ import './index.css';
 
 // Ensure all axios requests send credentials (cookies) by default
 axios.defaults.withCredentials = true;
+// Set Authorization header from stored token on app boot
+const storedToken = localStorage.getItem('authToken');
+if (storedToken) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+}
 
 // Get the root element and ensure it exists
 const rootElement = document.getElementById("root");
