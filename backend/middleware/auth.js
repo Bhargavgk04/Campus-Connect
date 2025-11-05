@@ -3,8 +3,11 @@ import User from '../models/User.js';
 
 export const auth = async (req, res, next) => {
   try {
-    // Get token from cookie
-    const token = req.cookies.token;
+    // Get token from cookie or Authorization header
+    let token = req.cookies.token;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
 
     if (!token) {
       return res.status(401).json({ message: 'No token, authorization denied' });
@@ -38,7 +41,7 @@ export const auth = async (req, res, next) => {
       req.user = user;
       req.userId = user._id;
 
-      // Set new token in cookie
+      // Set new token in cookie and expose in header for SPA fallback
       const newToken = jwt.sign(
         { userId: user._id },
         process.env.JWT_SECRET,
@@ -51,6 +54,8 @@ export const auth = async (req, res, next) => {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
       });
+      // Also attach token to response header for clients that use Authorization
+      res.set('X-Auth-Token', newToken);
 
       next();
     } catch (error) {

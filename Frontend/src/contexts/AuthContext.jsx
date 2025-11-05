@@ -62,6 +62,11 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load token from storage on startup for Authorization fallback
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+    }
     checkAuth();
   }, []);
 
@@ -94,6 +99,11 @@ export function AuthProvider({ children }) {
       }, {
         withCredentials: true
       });
+      // Store token for Authorization header fallback (in case cookies are blocked)
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      }
       setUser(response.data.user);
       
       // Admin users are directed to the admin panel
