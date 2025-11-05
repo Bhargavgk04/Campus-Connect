@@ -204,14 +204,13 @@ export default function Profile() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
-      fetch(getApiUrl('enrollment/my-colleges'), {
-        credentials: 'include',
+      axios.get(getApiUrl('enrollment/my-colleges'), {
+        withCredentials: true,
         signal: controller.signal
       })
-        .then(res => res.json())
-        .then(data => setEnrollments(data))
+        .then(res => setEnrollments(res.data))
         .catch(err => {
-          if (err.name === 'AbortError') {
+          if (err.name === 'CanceledError' || err.name === 'AbortError') {
             console.error('Request timed out');
             toast.error('Request timed out. Please try again.');
           } else {

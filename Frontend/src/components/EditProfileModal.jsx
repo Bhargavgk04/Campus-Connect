@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getApiUrl } from '@/config/api';
+import axios from 'axios';
 
 export default function EditProfileModal({ isOpen, onClose, userData, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -69,22 +70,19 @@ export default function EditProfileModal({ isOpen, onClose, userData, onUpdate }
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch(getApiUrl('profile/update'), {
-        method: 'PUT',
-        credentials: 'include',
+      const { data } = await axios.put(getApiUrl('profile/update'), formData, {
+        withCredentials: true,
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+          'Content-Type': 'application/json'
+        }
       });
 
-      const data = await response.json();
-      if (response.ok) {
+      if (data && data.user) {
         onUpdate(data.user);
         toast.success('Profile updated successfully');
         onClose();
       } else {
-        toast.error(data.message || 'Failed to update profile');
+        toast.error(data?.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Profile update error:', error);

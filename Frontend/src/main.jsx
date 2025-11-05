@@ -15,6 +15,18 @@ if (storedToken) {
   axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
 }
 
+// Always attach latest token from storage on each request
+axios.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+  } catch (_) {}
+  return config;
+});
+
 // Get the root element and ensure it exists
 const rootElement = document.getElementById("root");
 if (!rootElement) {
