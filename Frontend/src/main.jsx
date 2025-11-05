@@ -1,10 +1,14 @@
 import React from 'react';
+import axios from 'axios';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import App from './App';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
+
+// Ensure all axios requests send credentials (cookies) by default
+axios.defaults.withCredentials = true;
 
 // Get the root element and ensure it exists
 const rootElement = document.getElementById("root");

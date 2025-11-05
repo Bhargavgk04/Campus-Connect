@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/config/api';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
 
@@ -21,8 +22,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/login', formData, {
-        withCredentials: true
+      await axios.post(getApiUrl('auth/login'), {
+        email: formData.username,
+        password: formData.password
       });
       navigate('/dashboard');
     } catch (error) {

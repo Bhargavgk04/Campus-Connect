@@ -34,6 +34,8 @@ const __dirname = dirname(__filename);
 config({ path: path.join(__dirname, '.env') });
 
 const app = express();
+// Behind Render/Vercel proxies, trust proxy so secure cookies work
+app.set('trust proxy', 1);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -74,8 +76,10 @@ app.use(cors({
       return callback(null, true);
     }
     
-    // In production, only allow origins from the allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // In production, only allow origins from the allowed list or trusted hosts
+    const isExplicitlyAllowed = allowedOrigins.indexOf(origin) !== -1;
+    const isTrustedHost = /https?:\/\/([a-zA-Z0-9-]+\.)*netlify\.app$/.test(origin);
+    if (isExplicitlyAllowed || isTrustedHost) {
       callback(null, true);
     } else {
       console.warn(`CORS: Blocked request from origin: ${origin}`);
@@ -317,7 +321,7 @@ app.post('/api/login', async (req, res) => {
       httpOnly: true, 
       maxAge: 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
     
     res.json({ 
@@ -338,7 +342,11 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/logout', auth, (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  });
   res.json({ message: 'Logged out successfully' });
 });
 

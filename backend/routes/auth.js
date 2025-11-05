@@ -66,7 +66,7 @@ router.post('/login', async (req, res) => {
       httpOnly: true, 
       maxAge: 24 * 60 * 60 * 1000,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
     
     res.json({ 
@@ -144,7 +144,11 @@ router.post('/register', async (req, res) => {
 
 // Logout route
 router.post('/logout', auth, (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+  });
   res.json({ message: 'Logged out successfully' });
 });
 

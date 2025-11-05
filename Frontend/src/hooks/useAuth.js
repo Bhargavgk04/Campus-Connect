@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getApiUrl } from "@/config/api";
 
 const useAuthStore = create(
   persist(
@@ -11,9 +12,9 @@ const useAuthStore = create(
       login: async (email, password) => {
         try {
           set({ isLoading: true });
-          // Replace with your actual API endpoint
-          const response = await fetch("/api/auth/login", {
+          const response = await fetch(getApiUrl('auth/login'), {
             method: "POST",
+            credentials: 'include',
             headers: {
               "Content-Type": "application/json",
             },
@@ -35,9 +36,9 @@ const useAuthStore = create(
       logout: async () => {
         try {
           set({ isLoading: true });
-          // Replace with your actual API endpoint
-          await fetch("/api/auth/logout", {
+          await fetch(getApiUrl('auth/logout'), {
             method: "POST",
+            credentials: 'include',
           });
           set({ user: null, isLoading: false });
         } catch (error) {
@@ -48,8 +49,9 @@ const useAuthStore = create(
       checkAuth: async () => {
         try {
           set({ isLoading: true });
-          // Replace with your actual API endpoint
-          const response = await fetch("/api/auth/me");
+          const response = await fetch(getApiUrl('auth/status'), {
+            credentials: 'include'
+          });
           if (!response.ok) {
             set({ user: null, isLoading: false });
             return null;

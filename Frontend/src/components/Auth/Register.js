@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { getApiUrl } from '@/config/api';
 import { useNavigate } from 'react-router-dom';
 import './Auth.css';
 
@@ -21,8 +22,9 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/register', formData, {
-        withCredentials: true
+      await axios.post(getApiUrl('auth/register'), {
+        email: formData.username,
+        password: formData.password
       });
       navigate('/login');
     } catch (error) {
