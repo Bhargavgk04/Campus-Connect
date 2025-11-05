@@ -438,7 +438,7 @@ app.get('/api/auth/status', async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        profilePicture: user.profilePicture
+        profilePicture: user.profilePicture ? normalizeUrl(user.profilePicture) : ''
       }
     });
   } catch (error) {

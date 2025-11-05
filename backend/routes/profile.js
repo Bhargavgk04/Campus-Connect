@@ -16,8 +16,8 @@ router.get('/', auth, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Ensure profile picture URL is complete
-    if (user.profilePicture && !user.profilePicture.startsWith('http')) {
+    // Ensure profile picture URL is absolute and on correct host
+    if (user.profilePicture) {
       user.profilePicture = normalizeUrl(user.profilePicture);
     }
 
@@ -120,7 +120,7 @@ router.put('/skills', auth, async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      profilePicture: user.profilePicture
+      profilePicture: user.profilePicture ? normalizeUrl(user.profilePicture) : ''
     });
   } catch (error) {
     console.error('Error updating skills:', error);
@@ -152,7 +152,7 @@ router.put('/achievements', auth, async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      profilePicture: user.profilePicture
+      profilePicture: user.profilePicture ? normalizeUrl(user.profilePicture) : ''
     });
   } catch (error) {
     console.error('Error updating achievements:', error);
@@ -254,8 +254,8 @@ router.get('/:userId', auth, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Ensure profile picture URL is complete
-    if (user.profilePicture && !user.profilePicture.startsWith('http')) {
+    // Ensure profile picture URL is absolute and on correct host
+    if (user.profilePicture) {
       user.profilePicture = normalizeUrl(user.profilePicture);
     }
 

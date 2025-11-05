@@ -28,7 +28,7 @@ router.get('/:id', async (req, res) => {
 
     // Normalize profile picture URL
     const aObj = answer.toObject ? answer.toObject() : answer;
-    if (aObj.author && aObj.author.profilePicture && !aObj.author.profilePicture.startsWith('http')) {
+    if (aObj.author && aObj.author.profilePicture) {
       aObj.author.profilePicture = normalizeUrl(aObj.author.profilePicture);
     }
     res.json(aObj);
@@ -47,7 +47,7 @@ router.get('/question/:questionId', async (req, res) => {
 
     const normalized = answers.map(a => {
       const aObj = a.toObject ? a.toObject() : a;
-      if (aObj.author && aObj.author.profilePicture && !aObj.author.profilePicture.startsWith('http')) {
+      if (aObj.author && aObj.author.profilePicture) {
         aObj.author.profilePicture = normalizeUrl(aObj.author.profilePicture);
       }
       return aObj;
@@ -83,7 +83,7 @@ router.post('/', auth, contentFilter, async (req, res) => {
 
     // Normalize URL
     const paObj = populatedAnswer.toObject ? populatedAnswer.toObject() : populatedAnswer;
-    if (paObj.author && paObj.author.profilePicture && !paObj.author.profilePicture.startsWith('http')) {
+    if (paObj.author && paObj.author.profilePicture) {
       paObj.author.profilePicture = normalizeUrl(paObj.author.profilePicture);
     }
 
@@ -119,7 +119,7 @@ router.put('/:id', auth, async (req, res) => {
       .populate('author', 'name profilePicture');
 
     const uaObj = updatedAnswer.toObject ? updatedAnswer.toObject() : updatedAnswer;
-    if (uaObj.author && uaObj.author.profilePicture && !uaObj.author.profilePicture.startsWith('http')) {
+    if (uaObj.author && uaObj.author.profilePicture) {
       uaObj.author.profilePicture = normalizeUrl(uaObj.author.profilePicture);
     }
 
@@ -247,12 +247,12 @@ router.post('/:id/comments', auth, async (req, res) => {
       .populate('comments.author', 'name profilePicture');
 
     const caObj = updatedAnswer.toObject ? updatedAnswer.toObject() : updatedAnswer;
-    if (caObj.author && caObj.author.profilePicture && !caObj.author.profilePicture.startsWith('http')) {
+    if (caObj.author && caObj.author.profilePicture) {
       caObj.author.profilePicture = normalizeUrl(caObj.author.profilePicture);
     }
     if (Array.isArray(caObj.comments)) {
       caObj.comments = caObj.comments.map(c => {
-        if (c.author && c.author.profilePicture && !c.author.profilePicture.startsWith('http')) {
+        if (c.author && c.author.profilePicture) {
           c.author.profilePicture = normalizeUrl(c.author.profilePicture);
         }
         return c;
